@@ -169,10 +169,51 @@ export const constantRoutes = [
         meta: {title: 'Profile', icon: 'user', noCache: true}
       }
     ]
+  },
+  /** when your routing map is too long, you can split it into small modules **/
+  componentsRouter,
+  chartsRouter,
+  nestedRouter,
+  tableRouter,
+  {
+    path: '/theme',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/theme/index'),
+        name: 'Theme',
+        meta: { title: 'Theme', icon: 'theme' }
+      }
+    ]
+  },
+
+  {
+    path: '/clipboard',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/clipboard/index'),
+        name: 'ClipboardDemo',
+        meta: { title: 'Clipboard', icon: 'clipboard' }
+      }
+    ]
+  },
+
+  {
+    path: 'external-link',
+    component: Layout,
+    children: [
+      {
+        path: 'https://github.com/PanJiaChen/vue-element-admin',
+        meta: { title: 'External Link', icon: 'link' }
+      }
+    ]
   }
 ]
 
-/**
+/**icon/index
  * asyncRoutes
  * the routes that need to be dynamically loaded based on user roles
  */
