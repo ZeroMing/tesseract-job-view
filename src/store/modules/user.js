@@ -37,7 +37,7 @@ const mutations = {
   SET_ROLES: (state, roles) => {
     state.roles = roles
   },
-  SET_USERROUTERS: (state, userRouters) => {
+  SET_USER_ROUTERS: (state, userRouters) => {
     state.userRouters = userRouters
   },
   SET_BUTTONS: (state, buttons) => {
@@ -80,7 +80,6 @@ const actions = {
       // resolve(userInfo)
       // 从后端获取用的权限列表，扔在storage里
       getUserAuthInfo(state.token).then(response => {
-
         const userAuthInfo = response
 
         if (!userAuthInfo) {
@@ -98,7 +97,7 @@ const actions = {
           name          菜单名称
           path          路径
           url_parttern  路径匹配模式
-          redirect      默认转发地址
+          redirect      默认跳转地址
           level         菜单级别
           title         前端显示名称
           icon          图标
@@ -147,15 +146,24 @@ const actions = {
         // 存放路由数据
         const menuRouters = []
         // 获取一级菜单路由
-        menuList.forEach((m, i) => {
-          if (m.parentId == null || m.parentId === 0) {
-            m.fullPath = '/' + m.path
+        menuList.forEach((menu, i) => {
+          if (menu.parentId == null || menu.parentId === 0) {
+            menu.fullPath = '/' + menu.path
+            let alwaysShow = menu.alwaysShowFlag === 1 ? true : false;
             const module = {
-              path: '/' + m.path,
+              path: '/' + menu.path,
+              // 一级路由默认值
               component: Layout,
-              redirect: '/permission/page', // 后端返回，可配置
-              alwaysShow: true,
-              meta: { id: m.id, title: m.name, fullPath: '/' + m.path }
+              // 后端返回，可配置
+              redirect: menu.redirect,
+              alwaysShow: alwaysShow,
+              meta: {
+                id: menu.id ,
+                title: menu.name ,
+                icon: menu.icon ,
+                fullPath: '/' + menu.path ,
+                noCache: true
+              }
             }
             menuRouters.push(module)
           }
@@ -172,7 +180,13 @@ const actions = {
                   path: m.path,
                   // 注意: webpack 编译es6 动态引入 import() 时不能传入变量。需要字符串模板。坑
                   component: () => import(`@/views${m.fullPath}`),
-                  meta: { id: m.id, title: m.name, fullPath: r.meta.fullPath + '/' + m.path }
+                  meta: {
+                    id: m.id,
+                    title: m.name,
+                    icon: m.icon,
+                    fullPath: r.meta.fullPath + '/' + m.path,
+                    noCache: true
+                  }
                 }
                 r.children.push(menu)
               }
@@ -180,26 +194,16 @@ const actions = {
             if (r.children) convertTree(r.children)
           })
         }
-
+        // constantRoutes.forEach(router => {
+        //   menuRouters.push(router)
+        // })
+        // 404 page must be placed at the end !!!
+        // const NOTFOUND_ROUTER = { path: '*', redirect: '/404', hidden: true }
+        // menuRouters.push(NOTFOUND_ROUTER)
         // 递归填充
         convertTree(menuRouters)
-
-        /* 调试代码
-        const routers = {
-            path: '/icon',
-            component: Layout,
-            children: [
-              {
-                path: 'index',
-                component: () => import('@/views/icons/index'),
-                name: 'Icons',
-                meta: { title: 'Icons', icon: 'icon', noCache: true }
-              }
-            ]
-        }
-        menuRouters.push(routers)*/
-        console.info(menuRouters)
-        commit('SET_USERROUTERS', menuRouters)
+        // console.info(menuRouters)
+        commit('SET_USER_ROUTERS', menuRouters);
         commit('SET_BUTTONS', btnList)
         commit('SET_ROLES', roles)
         commit('SET_NAME', name)
