@@ -278,7 +278,7 @@
             this.$alert('请先添加执行器')
             return
           }
-          this.executorMap = commonUtils.listToMap(this.executorList)
+          this.executorMap = commonUtils.listToMap(this.executorList, 'id', 'name')
           this.dialogTableVisible = true
         })
       },

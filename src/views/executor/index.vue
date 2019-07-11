@@ -194,8 +194,16 @@
         })
       },
       modify(row) {
-        this.executorInfo = row.executor
-        this.dialogTableVisible = true
+        getAllGroup().then(response => {
+          if (response.length == 0) {
+            this.$alert('请先创建组')
+            return
+          }
+          this.groupList = response
+          this.groupMap = commonUtils.listToMap(response, 'id', 'name')
+          this.executorInfo = row.executor
+          this.dialogTableVisible = true
+        })
       },
       deleteExecutor(row) {
         deleteExecutor({executorId: row.executor.id}).then(() => {
