@@ -139,7 +139,7 @@
               type="danger"
               size="small"
               icon="el-icon-delete"
-              @click="delete(scope.row)"
+              @click="deleteTrigger(scope.row)"
             >
               删除
             </el-button>
@@ -332,7 +332,7 @@
           this.getTriggerList()
         })
       },
-      delete(row) {
+      deleteTrigger(row) {
         deleteTrigger({triggerId: row.id}).then(() => {
           this.$alert('删除成功')
           this.getTriggerList()

@@ -12,7 +12,7 @@
           <el-button type="primary" @click="getExecutorList">查询</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="success" @click="dialogTableVisible=true">新增执行器</el-button>
+          <el-button type="success" @click="addExecutorBtn">新增执行器</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -31,6 +31,11 @@
         <el-table-column align="center" label="描述">
           <template slot-scope="scope">
             <span>{{ scope.row.executor.description }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="执行器组">
+          <template slot-scope="scope">
+            <span>{{ scope.row.executor.groupName }}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="在线机器">
@@ -90,6 +95,11 @@
         <el-form-item label="触发器名字" prop="name">
           <el-input ref="name" v-model="executorInfo.name" placeholder="触发器名字"/>
         </el-form-item>
+        <el-form-item label="执行器组" prop="group">
+          <el-select v-model="executorInfo.groupId" placeholder="执行器组">
+            <el-option v-for="group in groupList" :label="group.name" :value="group.id"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="触发器描述" prop="description">
           <el-input ref="name" v-model="executorInfo.description" placeholder="触发器描述"/>
         </el-form-item>
@@ -102,81 +112,100 @@
 </template>
 
 <script>
-import elDragDialog from '@/directive/el-drag-dialog'
-import { getAllExecutor, addExecutor, deleteExecutor } from '@/api/executor'
-import { parseTime } from '@/utils'
-import constant from './constant'
+  import elDragDialog from '@/directive/el-drag-dialog'
+  import {getAllExecutor, addExecutor, deleteExecutor} from '@/api/executor'
+  import {parseTime} from '@/utils'
+  import {getAllGroup} from '@/api/group'
+  import constant from './constant'
+  import commonUtils from '@/utils/commonUtils'
 
-export default {
-  name: 'Executor',
-  directives: { elDragDialog },
-  data() {
-    return {
-      listLoading: true,
-      executorRules: {
-        name: [{ required: true, message: '输入名字', executor: 'blur' }],
-        description: [{ required: true, message: '输入执行器描述', executor: 'blur' }]
-      },
-      executorList: [],
-      selectInfo: {
-        currentPage: 1,
-        pageSize: 10,
-        total: 0
-      },
-      dialogTableVisible: false,
-      executorInfo: {
-        name: null,
-        description: null
+  export default {
+    name: 'Executor',
+    directives: {elDragDialog},
+    data() {
+      return {
+        listLoading: true,
+        executorRules: {
+          name: [{required: true, message: '输入名字', executor: 'blur'}],
+          description: [{required: true, message: '输入执行器描述', executor: 'blur'}]
+        },
+        executorList: [],
+        selectInfo: {
+          currentPage: 1,
+          pageSize: 10,
+          total: 0
+        },
+        dialogTableVisible: false,
+        executorInfo: {
+          name: null,
+          description: null
+        }
       }
-    }
-  },
-  mounted() {
-    this.getExecutorList()
-  },
-  methods: {
-    pageChange(currentPage) {
-      this.selectInfo.currentPage = currentPage
+    },
+    mounted() {
       this.getExecutorList()
     },
-    parseTime: parseTime,
-    getExecutorList() {
-      getAllExecutor(this.selectInfo).then(response => {
-        this.selectInfo = response.pageInfo
-        this.executorList = response.executorList
-        this.listLoading = false
-      })
-    },
-    // v-el-drag-dialog onDrag callback function
-    handleDrag() {
-      this.$refs.select.blur()
-    },
-    saveExecutor() {
-      this.$refs.executorForm.validate(valid => {
-        if (valid) {
-          addExecutor(this.executorInfo).then(() => {
-            this.$alert('保存成功')
-            this.getExecutorList()
-            this.dialogTableVisible = false
-          })
-        } else {
-          this.$alert('表单填写错误')
-          return false
-        }
-      })
-    },
-    modify(row) {
-      this.executorInfo = row.executor
-      this.dialogTableVisible = true
-    },
-    deleteExecutor(row) {
-      deleteExecutor({ executorId: row.id }).then(() => {
-        this.$alert('保存成功')
+    methods: {
+      addExecutorBtn() {
+        getAllGroup().then(response => {
+          if (response.length == 0) {
+            this.$alert('请先创建组')
+            return
+          }
+          this.groupList = response
+          this.groupMap = commonUtils.listToMap(response, 'id', 'name')
+          this.dialogTableVisible = true
+        })
+      },
+      pageChange(currentPage) {
+        this.selectInfo.currentPage = currentPage
         this.getExecutorList()
-        this.dialogTableVisible = false
-      })
+      },
+      parseTime: parseTime,
+      getExecutorList() {
+        getAllExecutor(this.selectInfo).then(response => {
+          this.selectInfo = response.pageInfo
+          this.executorList = response.executorList
+          this.listLoading = false
+        })
+      },
+      // v-el-drag-dialog onDrag callback function
+      handleDrag() {
+        this.$refs.select.blur()
+      },
+      saveExecutor() {
+        this.$refs.executorForm.validate(valid => {
+          if (valid) {
+            //校验执行器组
+            if (this.executorInfo.groupId == null) {
+              this.$alert('请选择组')
+              return
+            }
+            this.executorInfo.groupName = this.groupMap.get(this.executorInfo.groupId)
+            addExecutor(this.executorInfo).then(() => {
+              this.$alert('保存成功')
+              this.getExecutorList()
+              this.dialogTableVisible = false
+            })
+          } else {
+            this.$alert('表单填写错误')
+            return false
+          }
+        })
+      },
+      modify(row) {
+        this.executorInfo = row.executor
+        this.dialogTableVisible = true
+      },
+      deleteExecutor(row) {
+        deleteExecutor({executorId: row.executor.id}).then(() => {
+          this.$alert('保存成功')
+          this.getExecutorList()
+          this.dialogTableVisible = false
+        })
+      }
     }
   }
-}
 </script>
 
 <style lang="scss" scoped>
