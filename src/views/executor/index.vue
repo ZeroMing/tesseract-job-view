@@ -153,7 +153,7 @@
             return
           }
           this.groupList = response
-          this.groupMap = commonUtils.listToMap(response, 'id', 'name')
+          this.groupMap = commonUtils.listToObjectMap(response, 'id')
           this.dialogTableVisible = true
         })
       },
@@ -181,7 +181,9 @@
               this.$alert('请选择组')
               return
             }
-            this.executorInfo.groupName = this.groupMap.get(this.executorInfo.groupId)
+            let groupInfo = this.groupMap.get(this.executorInfo.groupId)
+            this.executorInfo.groupName = groupInfo.name
+            this.executorInfo.mail = groupInfo.mail
             addExecutor(this.executorInfo).then(() => {
               this.$alert('保存成功')
               this.getExecutorList()
@@ -200,7 +202,7 @@
             return
           }
           this.groupList = response
-          this.groupMap = commonUtils.listToMap(response, 'id', 'name')
+          this.groupMap = commonUtils.listToObjectMap(response, 'id')
           this.executorInfo = row.executor
           this.dialogTableVisible = true
         })

@@ -13,8 +13,15 @@ export default {
     console.log(map)
     return map
   },
+  listToObjectMap: (list, keyName) => {
+    const map = new Map()
+    list.foreach((obj) => {
+      map.set(obj['keyName'], obj)
+    })
+    return map
+  },
   //定义一个递归方法
-  convertTree: (routers,menuList) => {
+  convertTree: (routers, menuList) => {
     routers.forEach(r => {
       menuList.forEach((m, i) => {
         if (m.parentId && m.parentId == r.meta.id) {
@@ -22,15 +29,15 @@ export default {
           m.fullPath = r.meta.fullPath + '/' + m.path
           let menu = {
             path: m.path,
-            component: () => import('@/views'+r.meta.fullPath+'/'+m.path),
-          meta: { id: m.id, title: m.title, fullPath: r.meta.fullPath + '/' + m.path }
+            component: () => import('@/views' + r.meta.fullPath + '/' + m.path),
+            meta: {id: m.id, title: m.title, fullPath: r.meta.fullPath + '/' + m.path}
           }
           r.children.push(menu)
         }
-        })
-      if (r.children) convertTree(r.children,menuList)
-  })
-}
+      })
+      if (r.children) convertTree(r.children, menuList)
+    })
+  }
 }
 
 
