@@ -30,6 +30,11 @@
             <span>{{ scope.row.name }}</span>
           </template>
         </el-table-column>
+        <el-table-column align="center" label="用户组">
+          <template slot-scope="scope">
+            <span>{{ scope.row.groupName }}</span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="状态">
           <template slot-scope="scope">
             <span v-if="scope.row.status==1" style="color: #67C23A;font-weight: bold">{{ statusMap.get(scope.row.status) }}</span>
@@ -47,10 +52,18 @@
           </template>
         </el-table-column>
 
-        <el-table-column align="center" label="操作" width="340">
+        <el-table-column align="center" label="操作" width="400">
           <template slot-scope="scope">
             <el-button
-              type="warning"
+              type="primary"
+              size="small"
+              icon="el-icon-edit"
+              @click="modify(scope.row)"
+            >
+              修改
+            </el-button>
+            <el-button
+              type="success"
               size="small"
               icon="el-icon-edit"
               @click="passwordRevert(scope.row.id)"
@@ -136,7 +149,7 @@
       return {
         userRules: {
           name: [{required: true, message: '输入用户名', user: 'blur'}],
-          group: [{required: true, message: '请选择用户组', trigger: 'blur'}],
+          group: [{required: false, message: '请选择用户组', trigger: 'blur'}],
         },
         userList: [],
         selectInfo: {
@@ -168,7 +181,7 @@
             return
           }
           this.groupList = response
-          this.groupMap = commonUtils.listToMap(response)
+          this.groupMap = commonUtils.listToMap(response, 'id', 'name')
           this.dialogTableVisible = true
         })
 
@@ -189,10 +202,15 @@
       },
       saveUser() {
         this.$refs.userForm.validate(valid => {
+          //校验用户组
+          if (this.userInfo.groupId == null) {
+            this.$alert('请选择组')
+            return
+          }
+          this.userInfo.groupName = this.groupMap.get(this.userInfo.groupId)
           if (valid) {
-            this.userInfo.groupId = this.groupMap.get(this.userInfo.groupId)
             addUser(this.userInfo).then(() => {
-              this.$alert('保存成功,用户密码为默认密码')
+              this.$alert('保存成功')
               this.getUserList()
               this.dialogTableVisible = false
             })
@@ -224,7 +242,20 @@
           this.$alert('删除成功')
           this.getUserList()
         })
-      }
+      },
+      modify(row) {
+        // 获取用户组列表
+        getAllGroup().then(response => {
+          if (response.length == 0) {
+            this.$alert('请先创建组')
+            return
+          }
+          this.groupList = response
+          this.groupMap = commonUtils.listToMap(response, 'id', 'name')
+          this.userInfo = row
+          this.dialogTableVisible = true
+        })
+      },
     }
   }
 </script>
