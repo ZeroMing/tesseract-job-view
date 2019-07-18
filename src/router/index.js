@@ -40,17 +40,6 @@ import nestedRouter from './modules/nested'
  */
 export const constantRoutes = [
   {
-    path: '/redirect',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: '/redirect/:path*',
-        component: () => import('@/views/redirect/index')
-      }
-    ]
-  },
-  {
     path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true
@@ -83,93 +72,6 @@ export const constantRoutes = [
       }
     ]
   },
-  {
-    path: '/trigger',
-    component: Layout,
-    children: [
-      {
-        path: 'trigger',
-        component: () => import('@/views/trigger/index'),
-        name: 'trigger',
-        meta: {title: '触发器列表', icon: 'documentation', affix: false}
-      }
-    ]
-  },
-  {
-    path: '/user',
-    component: Layout,
-    children: [
-      {
-        path: 'user',
-        component: () => import('@/views/user/index'),
-        name: 'user',
-        meta: {title: '用户列表', icon: 'documentation', affix: false}
-      }
-    ]
-  },
-  {
-    path: '/log',
-    component: Layout,
-    children: [
-      {
-        path: 'log',
-        component: () => import('@/views/log/index'),
-        name: 'log',
-        meta: {title: '日志列表', icon: 'documentation', affix: false}
-      }
-    ]
-  },
-  {
-    path: '/executor',
-    component: Layout,
-    children: [
-      {
-        path: 'executor',
-        component: () => import('@/views/executor/index'),
-        name: 'executor',
-        meta: {title: '执行器列表', icon: 'documentation', affix: false}
-      }
-    ]
-  },
-  {
-    path: '/group',
-    component: Layout,
-    children: [
-      {
-        path: 'group',
-        component: () => import('@/views/group/index'),
-        name: 'group',
-        meta: {title: '组列表', icon: 'documentation', affix: false}
-      }
-    ]
-  },
-  {
-    path: '/guide',
-    component: Layout,
-    redirect: '/guide/index',
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/guide/index'),
-        name: 'Guide',
-        meta: {title: 'Guide', icon: 'guide', noCache: true}
-      }
-    ]
-  },
-  {
-    path: '/profile',
-    component: Layout,
-    redirect: '/profile/index',
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/profile/index'),
-        name: 'Profile',
-        meta: {title: 'Profile', icon: 'user', noCache: true}
-      }
-    ]
-  },
   /** when your routing map is too long, you can split it into small modules **/
   componentsRouter,
   chartsRouter,
@@ -183,7 +85,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/theme/index'),
         name: 'Theme',
-        meta: { title: 'Theme', icon: 'theme' }
+        meta: {title: 'Theme', icon: 'theme'}
       }
     ]
   },
@@ -196,7 +98,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/clipboard/index'),
         name: 'ClipboardDemo',
-        meta: { title: 'Clipboard', icon: 'clipboard' }
+        meta: {title: 'Clipboard', icon: 'clipboard'}
       }
     ]
   },
@@ -207,7 +109,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'https://github.com/PanJiaChen/vue-element-admin',
-        meta: { title: 'External Link', icon: 'link' }
+        meta: {title: 'External Link', icon: 'link'}
       }
     ]
   }
