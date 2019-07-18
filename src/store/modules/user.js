@@ -143,29 +143,68 @@ const actions = {
           // 404 page must be placed at the end !!!
           { path: '*', redirect: '/404', hidden: true }
         ]*/
+        function isHaveChild(compareList,targetId) {
+          let childFlag = 0
+          compareList.forEach((compare, i) => {
+            if(targetId === compare.parentId){
+              childFlag = 1
+              return false
+            }
+          });
+          return childFlag
+        }
+
+
         // 存放路由数据
         const menuRouters = []
         // 获取一级菜单路由
         menuList.forEach((menu, i) => {
           if (menu.parentId == null || menu.parentId === 0) {
-            menu.fullPath = '/' + menu.path
-            let alwaysShow = menu.alwaysShowFlag === 1 ? true : false;
-            const module = {
-              path: '/' + menu.path,
-              // 一级路由默认值
-              component: Layout,
-              // 后端返回，可配置
-              redirect: menu.redirect,
-              alwaysShow: alwaysShow,
-              meta: {
-                id: menu.id ,
-                title: menu.name ,
-                icon: menu.icon ,
-                fullPath: '/' + menu.path ,
-                noCache: true
+            if(isHaveChild(menuList,menu.id) === 1){
+              menu.fullPath = '/' + menu.path
+              let alwaysShow = menu.alwaysShowFlag === 1 ? true : false;
+              const module = {
+                path: '/' + menu.path,
+                // 一级路由默认值
+                component: Layout,
+                // 后端返回，可配置
+                redirect: menu.redirect,
+                alwaysShow: alwaysShow,
+                meta: {
+                  id: menu.id ,
+                  title: menu.name ,
+                  icon: menu.icon ,
+                  fullPath: '/' + menu.path ,
+                  noCache: true
+                }
               }
+              menuRouters.push(module)
+            }else{
+              menu.fullPath = '/' + menu.path
+              let alwaysShow = menu.alwaysShowFlag === 1 ? true : false;
+              let indexPath = menu.path + "/index";
+              const module = {
+                path: '/'+ menu.path,
+                component: Layout,
+                alwaysShow: alwaysShow,
+                meta: {
+                  id: menu.id ,
+                  icon: menu.icon ,
+                  fullPath: '/' + menu.path ,
+                  noCache: true
+                },
+                children: [
+                  {
+                    path: 'index',
+                    component: () => import(`@/views/${indexPath}`),
+                    meta: {
+                      title: menu.name
+                    }
+                  }
+                ]
+              }
+              menuRouters.push(module)
             }
-            menuRouters.push(module)
           }
         })
 
