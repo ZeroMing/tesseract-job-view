@@ -19,6 +19,26 @@ import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
 
+//自定义数组方法
+Array.prototype.contains = function (obj) {
+  let i = this.length;
+  while (i--) {
+    if (this[i] === obj) {
+      return true;
+    }
+  }
+  return false;
+}
+
+Array.prototype.match = function (reg) {
+  let i = this.length;
+  while (i--) {
+    if (typeof this[i] === 'string' && this[i].match(reg).length != 0) {
+      return true;
+    }
+  }
+  return false;
+}
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -27,7 +47,8 @@ import * as filters from './filters' // global filters
  * Currently MockJs will be used in the production environment,
  * please remove it before going online! ! !
  */
-import { mockXHR } from '../mock'
+import {mockXHR} from '../mock'
+
 if (process.env.NODE_ENV === 'production') {
   mockXHR()
 }

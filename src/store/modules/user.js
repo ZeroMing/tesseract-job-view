@@ -83,8 +83,8 @@ const actions = {
         const menuRouters = []
         // 获取一级菜单路由
         menuList.forEach((menu, i) => {
+          let alwaysShow = menu.alwaysShowFlag === 1 ? true : false;
           if (menu.parentId == null || menu.parentId === 0) {
-            let alwaysShow = menu.alwaysShowFlag === 1 ? true : false;
             const module = {
               path: menu.path,
               component: Layout,
@@ -100,7 +100,8 @@ const actions = {
             menuRouters.push(module)
           }
         })
-        commit('SET_USER_ROUTERS', menuRouters);
+
+        commit('SET_USER_ROUTERS', menuRouters.concat(constantRoutes));
         commit('SET_BUTTONS', btnList)
         commit('SET_ROLES', roles)
         commit('SET_NAME', name)
@@ -134,31 +135,6 @@ const actions = {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
       removeToken()
-      resolve()
-    })
-  },
-
-  // dynamically modify permissions
-  changeRoles({commit, dispatch}, role) {
-    return new Promise(async resolve => {
-      const token = role + '-token'
-
-      commit('SET_TOKEN', token)
-      setToken(token)
-
-      const {roles} = await dispatch('getInfo')
-
-      resetRouter()
-
-      // generate accessible routes map based on roles
-      const accessRoutes = await dispatch('permission/generateRoutes', roles, {root: true})
-
-      // dynamically add accessible routes
-      router.addRoutes(accessRoutes)
-
-      // reset visited views and cached views
-      dispatch('tagsView/delAllViews', null, {root: true})
-
       resolve()
     })
   }

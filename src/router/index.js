@@ -38,15 +38,23 @@ import nestedRouter from './modules/nested'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
+
+
 export const constantRoutes = [
+  {
+    path: '/redirect',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '/redirect/:path*',
+        component: () => import('@/views/redirect/index')
+      }
+    ]
+  },
   {
     path: '/login',
     component: () => import('@/views/login/index'),
-    hidden: true
-  },
-  {
-    path: '/auth-redirect',
-    component: () => import('@/views/login/auth-redirect'),
     hidden: true
   },
   {
@@ -63,6 +71,7 @@ export const constantRoutes = [
     path: '/',
     component: Layout,
     redirect: '/dashboard',
+    hidden: true,
     children: [
       {
         path: 'dashboard',
@@ -72,47 +81,51 @@ export const constantRoutes = [
       }
     ]
   },
-  /** when your routing map is too long, you can split it into small modules **/
-  componentsRouter,
-  chartsRouter,
-  nestedRouter,
-  tableRouter,
   {
-    path: '/theme',
+    path: '/permission-new',
     component: Layout,
+    redirect: '/permission-new/menuResource/index',
+    alwaysShow: true, // will always show the root menu
+    name: 'Permission',
+    meta: {
+      title: '权限管理',
+      icon: 'lock',
+    },
     children: [
       {
-        path: 'index',
-        component: () => import('@/views/theme/index'),
-        name: 'Theme',
-        meta: {title: 'Theme', icon: 'theme'}
+        path: 'menuResource',
+        component: () => import('@/views/permission-new/menuResource/index'),
+        name: 'menuResource',
+        meta: {
+          title: '菜单管理'
+        }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/permission-new/role/index'),
+        name: 'role',
+        meta: {
+          title: '角色管理'
+        }
+      },
+      {
+        path: 'btn',
+        component: () => import('@/views/permission-new/btn/index'),
+        name: 'btn',
+        meta: {
+          title: '按钮管理'
+        }
+      },
+      {
+        path: 'user',
+        component: () => import('@/views/user/index'),
+        name: 'user',
+        meta: {
+          title: '用户管理'
+        }
       }
     ]
   },
-
-  {
-    path: '/clipboard',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/clipboard/index'),
-        name: 'ClipboardDemo',
-        meta: {title: 'Clipboard', icon: 'clipboard'}
-      }
-    ]
-  },
-
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://github.com/PanJiaChen/vue-element-admin',
-        meta: {title: 'External Link', icon: 'link'}
-      }
-    ]
-  }
 ]
 
 /**icon/index

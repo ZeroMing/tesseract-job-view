@@ -1,38 +1,51 @@
 import request from '@/utils/request'
 
-export function getRoutes() {
+export function getRoleMenu(params) {
   return request({
-    url: '/routes',
-    method: 'get'
+    url: '/tesseract-role/getRoleMenu',
+    method: 'get',
+    params: params
   })
 }
 
-export function getRoles() {
+
+export function getRoleByUserId(params) {
   return request({
-    url: '/roles',
-    method: 'get'
+    url: '/tesseract-role/getRoleByUserId',
+    method: 'get',
+    params: params
   })
 }
+
+export function getAllRole(params) {
+  return request({
+    url: '/tesseract-role/allRole',
+    method: 'get',
+    params: params
+  })
+}
+
+export function roleList(params) {
+  return request({
+    url: '/tesseract-role/roleList',
+    method: 'get',
+    params: params
+  })
+}
+
 
 export function addRole(data) {
   return request({
-    url: '/role',
+    url: '/tesseract-role/saveOrUpdateRole',
     method: 'post',
-    data
+    data: data
   })
 }
 
-export function updateRole(id, data) {
+export function deleteRole(data) {
   return request({
-    url: `/role/${id}`,
-    method: 'put',
-    data
-  })
-}
-
-export function deleteRole(id) {
-  return request({
-    url: `/role/${id}`,
-    method: 'delete'
+    url: '/tesseract-role/deleteRole',
+    method: 'get',
+    params: data
   })
 }

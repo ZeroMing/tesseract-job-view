@@ -2,17 +2,21 @@
   <div class="app-container">
     <el-row>
       <el-form :inline="true" :model="selectInfo">
-        <el-form-item label="组名称">
-          <el-input v-model="selectInfo.name" placeholder="组名称"/>
-        </el-form-item>
-        <el-form-item label="创建人">
-          <el-input v-model="selectInfo.creator" placeholder="创建人"/>
-        </el-form-item>
+        <div v-if="$store.getters.buttons.contains('/group/index/select')">
+          <el-form-item label="组名称">
+            <el-input v-model="selectInfo.name" placeholder="组名称"/>
+          </el-form-item>
+          <el-form-item label="创建人">
+            <el-input v-model="selectInfo.creator" placeholder="创建人"/>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="getGroupList">查询</el-button>
+          </el-form-item>
+        </div>
         <el-form-item>
-          <el-button type="primary" @click="getGroupList">查询</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="success" @click="dialogTableVisible=true">新增组</el-button>
+          <el-button type="success" @click="dialogTableVisible=true"
+                     v-if="$store.getters.buttons.contains('/group/index/add')">新增组
+          </el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -60,13 +64,15 @@
           </template>
         </el-table-column>
 
-        <el-table-column align="center" label="操作" width="300">
+        <el-table-column align="center" label="操作" width="300"
+                         v-if="$store.getters.buttons.contains('/group/index/edit') || $store.getters.buttons.contains('/group/index/delete') ">
           <template slot-scope="scope">
             <el-button
               type="warning"
               size="small"
               icon="el-icon-edit"
               @click="modify(scope.row)"
+              v-if="$store.getters.buttons.contains('/group/index/edit')"
             >
               修改
             </el-button>
@@ -76,6 +82,7 @@
               size="small"
               icon="el-icon-delete"
               @click="deleteGroup(scope.row)"
+              v-if="$store.getters.buttons.contains('/group/index/delete')"
             >
               删除
             </el-button>

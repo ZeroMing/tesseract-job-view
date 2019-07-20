@@ -9,10 +9,14 @@
           <el-input v-model="selectInfo.creator" placeholder="创建人"/>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="getExecutorList">查询</el-button>
+          <el-button v-if="$store.getters.buttons.contains('/executor/index/select')" type="primary"
+                     @click="getExecutorList">查询
+          </el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="success" @click="addExecutorBtn">新增执行器</el-button>
+          <el-button v-if="$store.getters.buttons.contains('/executor/index/add')" type="success"
+                     @click="addExecutorBtn">新增执行器
+          </el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -58,6 +62,7 @@
         <el-table-column align="center" label="操作" width="300">
           <template slot-scope="scope">
             <el-button
+              v-if="$store.getters.buttons.contains('modify') && $store.getters.buttons.contains('/executor/index/edit')"
               type="warning"
               size="small"
               icon="el-icon-edit"
@@ -71,6 +76,7 @@
               size="small"
               icon="el-icon-delete"
               @click="deleteExecutor(scope.row)"
+              v-if="$store.getters.buttons.contains('/executor/index/delete')"
             >
               删除
             </el-button>

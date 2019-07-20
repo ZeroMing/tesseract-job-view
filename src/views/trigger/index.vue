@@ -2,31 +2,35 @@
   <div class="app-container">
     <el-row>
       <el-form :inline="true" :model="selectInfo">
-        <el-form-item label="触发器名">
-          <el-input v-model="selectInfo.name" placeholder="触发器名"/>
-        </el-form-item>
-        <el-form-item label="执行器名">
-          <el-input v-model="selectInfo.executorName" placeholder="执行器名"/>
-        </el-form-item>
-        <el-form-item label="所属组">
-          <el-input v-model="selectInfo.groupName" placeholder="所属组"/>
-        </el-form-item>
-        <el-form-item label="任务描述">
-          <el-input v-model="selectInfo.description" placeholder="任务描述"/>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="selectInfo.status" placeholder="请选择状态">
-            <el-option v-for="status in statusList" :label="status.value" :value="status.key"/>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="创建人">
-          <el-input v-model="selectInfo.creator" placeholder="创建人"/>
-        </el-form-item>
+        <div v-if="$store.getters.buttons.contains('/trigger/index/select')">
+          <el-form-item label="触发器名">
+            <el-input v-model="selectInfo.name" placeholder="触发器名"/>
+          </el-form-item>
+          <el-form-item label="执行器名">
+            <el-input v-model="selectInfo.executorName" placeholder="执行器名"/>
+          </el-form-item>
+          <el-form-item label="所属组">
+            <el-input v-model="selectInfo.groupName" placeholder="所属组"/>
+          </el-form-item>
+          <el-form-item label="任务描述">
+            <el-input v-model="selectInfo.description" placeholder="任务描述"/>
+          </el-form-item>
+          <el-form-item label="状态">
+            <el-select v-model="selectInfo.status" placeholder="请选择状态">
+              <el-option v-for="status in statusList" :label="status.value" :value="status.key"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="创建人">
+            <el-input v-model="selectInfo.creator" placeholder="创建人"/>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="getTriggerList">查询</el-button>
+          </el-form-item>
+        </div>
         <el-form-item>
-          <el-button type="primary" @click="getTriggerList">查询</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="success" @click="addTriggerInfo">新增触发器</el-button>
+          <el-button type="success" @click="addTriggerInfo"
+                     v-if="$store.getters.buttons.contains('/trigger/index/add')">新增触发器
+          </el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -99,13 +103,15 @@
             <span>{{ scope.row.groupName }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="操作" width="440">
+        <el-table-column align="center" label="操作" width="440"
+                         v-if="$store.getters.buttons.contains('/trigger/index/edit') || $store.getters.buttons.contains('/trigger/index/delete') ">
           <template slot-scope="scope">
             <el-button
               type="warning"
               size="small"
               icon="el-icon-edit"
               @click="modify(scope.row)"
+              v-if="$store.getters.buttons.contains('/trigger/index/edit')"
             >
               修改
             </el-button>
@@ -114,20 +120,22 @@
               size="small"
               icon="el-icon-edit"
               @click="execute(scope.row)"
+              v-if="$store.getters.buttons.contains('/trigger/index/edit')"
             >
               执行
             </el-button>
             <el-button
-              v-if="scope.row.status==0"
+              v-if="scope.row.status==0 || $store.getters.buttons.contains('/trigger/index/edit')"
               type="success"
               size="small"
               icon="el-icon-edit"
               @click="start(scope.row)"
+
             >
               启动
             </el-button>
             <el-button
-              v-else
+              v-if="scope.row.status==1 || $store.getters.buttons.contains('/trigger/index/edit')"
               type="info"
               size="small"
               icon="el-icon-edit"
@@ -140,6 +148,7 @@
               size="small"
               icon="el-icon-delete"
               @click="deleteTrigger(scope.row)"
+              v-if="$store.getters.buttons.contains('/trigger/index/delete')"
             >
               删除
             </el-button>

@@ -10,7 +10,6 @@ export default {
       }
       map.set(item[keyName], item[valueName])
     }
-    console.log(map)
     return map
   },
   listToObjectMap: (list, keyName) => {

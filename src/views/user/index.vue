@@ -2,19 +2,25 @@
   <div class="app-container">
     <el-row>
       <el-form :inline="true" :model="selectInfo">
-        <el-form-item label="用户名">
-          <el-input v-model="selectInfo.name" placeholder="用户名"/>
-        </el-form-item>
-        <el-form-item label="用户状态">
-          <el-select v-model="selectInfo.status" placeholder="请选择状态">
-            <el-option v-for="status in statusList" :label="status.value" :value="status.key"/>
-          </el-select>
-        </el-form-item>
+        <div style="display: inline">
+          <el-form-item label="用户名">
+            <el-input v-model="selectInfo.name" placeholder="用户名"/>
+          </el-form-item>
+          <el-form-item label="用户状态">
+            <el-select placeholder="请选择状态">
+              <el-option v-for="status in statusList" :label="status.value" :value="status.key"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="getUserList">
+              查询
+            </el-button>
+          </el-form-item>
+        </div>
         <el-form-item>
-          <el-button type="primary" @click="getUserList">查询</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="success" @click="addUserBtn">新增用户</el-button>
+          <el-button type="success" @click="addUserBtn(null)">
+            新增用户
+          </el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -58,7 +64,7 @@
               type="primary"
               size="small"
               icon="el-icon-edit"
-              @click="modify(scope.row)"
+              @click="addUserBtn(scope.row)"
             >
               修改
             </el-button>
@@ -118,12 +124,18 @@
     <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="触发器信息" @dragDialog="handleDrag">
       <el-form ref="userForm" :inline="false" :model="userInfo" :rules="userRules" label-width="120px">
         <el-form-item label="用户名" prop="name">
-          <el-input ref="name" v-model="userInfo.name" placeholder="触发器名字"/>
+          <el-input ref="name" v-model="userInfo.name" placeholder="用户名"/>
         </el-form-item>
         <el-form-item label="用户组" prop="group">
           <el-select v-model="userInfo.groupId" placeholder="用户组">
             <el-option v-for="group in groupList" :label="group.name" :value="group.id"/>
           </el-select>
+        </el-form-item>
+        <el-form-item label="角色" prop="role">
+
+          <el-checkbox-group v-model="checkRoleList">
+            <el-checkbox v-for="role in roleList" :label="role.roleName"></el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="saveUser">保存</el-button>
@@ -140,7 +152,7 @@
   import constant from './constant'
   import {parseTime} from '@/utils'
   import commonUtils from '@/utils/commonUtils'
-
+  import {getAllRole, getRoleByUserId} from '@/api/role'
 
   export default {
     name: 'User',
@@ -150,6 +162,7 @@
         userRules: {
           name: [{required: true, message: '输入用户名', user: 'blur'}],
           group: [{required: false, message: '请选择用户组', trigger: 'blur'}],
+          role: [{required: false, message: '请选择角色', trigger: 'blur'}]
         },
         userList: [],
         selectInfo: {
@@ -160,13 +173,19 @@
         },
         dialogTableVisible: false,
         userInfo: {
-          name: null
+          name: null,
+          roleId: null,
+          groupId: null
         },
         statusMap: constant.statusMap,
         statusList: constant.statusList,
         listLoading: false,
         groupList: null,
-        groupMap: null
+        groupMap: null,
+        roleList: null,
+        roleNameIdMap: null,
+        checkRoleList: []
+
       }
     },
     mounted() {
@@ -174,17 +193,33 @@
     },
     methods: {
       parseTime: parseTime,
-      addUserBtn() {
-        getAllGroup().then(response => {
-          if (response.length == 0) {
-            this.$alert('请先创建组')
-            return
+      addUserBtn(row) {
+        let promiseList
+        if (row) {
+          promiseList = [getAllGroup(), getAllRole(), getRoleByUserId({userId: row.id})]
+        } else {
+          promiseList = [getAllGroup(), getAllRole()]
+        }
+        Promise.all(promiseList).then(reponseList => {
+          this.groupList = reponseList[0]
+          this.groupMap = commonUtils.listToMap(reponseList[0], 'id', 'name')
+          this.roleList = reponseList[1]
+          this.roleNameIdMap = commonUtils.listToMap(reponseList[1], 'roleName', 'id')
+          if (row) {
+            this.userInfo.id = row.id
+            this.userInfo.name = row.name
+            this.userInfo.groupId = row.groupId
+            for (let role of  reponseList[2]) {
+              this.checkRoleList.push(role.roleName)
+            }
+          } else {
+            this.userInfo.id = null
+            this.userInfo.name = null
+            this.userInfo.groupId = reponseList[0][0].id
+            this.userInfo.roleId = reponseList[1][0].id
           }
-          this.groupList = response
-          this.groupMap = commonUtils.listToMap(response, 'id', 'name')
           this.dialogTableVisible = true
         })
-
       },
       pageChange(currentPage) {
         this.selectInfo.currentPage = currentPage
@@ -207,6 +242,12 @@
             this.$alert('请选择组')
             return
           }
+          //所选角色
+          let roleIdList = []
+          for (let roleName of this.checkRoleList) {
+            roleIdList.push(this.roleNameIdMap.get(roleName))
+          }
+          this.userInfo.roleIdList = roleIdList
           this.userInfo.groupName = this.groupMap.get(this.userInfo.groupId)
           if (valid) {
             addUser(this.userInfo).then(() => {
@@ -242,20 +283,7 @@
           this.$alert('删除成功')
           this.getUserList()
         })
-      },
-      modify(row) {
-        // 获取用户组列表
-        getAllGroup().then(response => {
-          if (response.length == 0) {
-            this.$alert('请先创建组')
-            return
-          }
-          this.groupList = response
-          this.groupMap = commonUtils.listToMap(response, 'id', 'name')
-          this.userInfo = row
-          this.dialogTableVisible = true
-        })
-      },
+      }
     }
   }
 </script>
