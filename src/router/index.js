@@ -81,51 +81,51 @@ export const constantRoutes = [
       }
     ]
   },
-  {
-    path: '/permission-new',
-    component: Layout,
-    //redirect: '/permission-new/menuResource/index',
-    alwaysShow: true, // will always show the root menu
-    name: 'Permission',
-    meta: {
-      title: '权限管理',
-      icon: 'lock',
-    },
-    children: [
-      {
-        path: 'menuResource',
-        component: () => import('@/views/permission-new/menuResource/index'),
-        name: 'menuResource',
-        meta: {
-          title: '菜单管理'
-        }
-      },
-      {
-        path: 'role',
-        component: () => import('@/views/permission-new/role/index'),
-        name: 'role',
-        meta: {
-          title: '角色管理'
-        }
-      },
-      {
-        path: 'btn',
-        component: () => import('@/views/permission-new/btn/index'),
-        name: 'btn',
-        meta: {
-          title: '按钮管理'
-        }
-      },
-      {
-        path: 'user',
-        component: () => import('@/views/user/index'),
-        name: 'user',
-        meta: {
-          title: '用户管理'
-        }
-      }
-    ]
-  },
+  // {
+  //   path: '/permission-new',
+  //   component: Layout,
+  //   //redirect: '/permission-new/menuResource/index',
+  //   alwaysShow: true, // will always show the root menu
+  //   name: 'Permission',
+  //   meta: {
+  //     title: '权限管理',
+  //     icon: 'lock',
+  //   },
+  //   children: [
+  //     {
+  //       path: '/menuResource',
+  //       component: () => import('@/views/permission-new/menuResource/index'),
+  //       name: 'menuResource',
+  //       meta: {
+  //         title: '菜单管理'
+  //       }
+  //     },
+  //     {
+  //       path: 'role',
+  //       component: () => import('@/views/permission-new/role/index'),
+  //       name: 'role',
+  //       meta: {
+  //         title: '角色管理'
+  //       }
+  //     },
+  //     {
+  //       path: 'btn',
+  //       component: () => import('@/views/permission-new/btn/index'),
+  //       name: 'btn',
+  //       meta: {
+  //         title: '按钮管理'
+  //       }
+  //     },
+  //     {
+  //       path: 'user',
+  //       component: () => import('@/views/user/index'),
+  //       name: 'user',
+  //       meta: {
+  //         title: '用户管理'
+  //       }
+  //     }
+  //   ]
+  // },
 ]
 
 /**icon/index

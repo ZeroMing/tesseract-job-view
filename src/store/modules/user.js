@@ -81,13 +81,15 @@ const actions = {
 
         // 存放路由数据
         const menuRouters = []
-        // 获取一级菜单路由，占时先支持二级菜单
         let menuMap = new Map()
         menuList.forEach((menu, i) => {
           let parentId = menu.parentId;
           let menuModel = {
             path: menu.path,
             component: Layout,
+            metaTitle: menu.metaTitle,
+            metaIcon: menu.metaIcon,
+            name: menu.name,
             redirect: menu.redirect,
             hidden: menu.hidden === 1,
             children: [{
@@ -99,17 +101,37 @@ const actions = {
           }
           //根结点
           if (parentId === 0) {
-            menuMap.set(menu.id, menuModel)
+            let currentMenu = menuMap.get(menu.id)
+            //如果节点不存在
+            if (!currentMenu) {
+              currentMenu = menuModel
+              menuMap.set(menu.id, currentMenu)
+            } else {
+              //如果节点存在则更新
+              currentMenu.path = menu.path
+              currentMenu.meta.title = menu.metaTitle
+              currentMenu.meta.icon = menu.metaIcon
+              currentMenu.name = menu.name
+            }
           } else {
+            //修改model为子菜单
+            menuModel = {
+              meta: {title: menu.metaTitle, icon: menu.metaIcon},
+              path: menu.path,
+              name: menu.name,
+              component: () => import(`@/views${menu.path}`),
+            }
             //二级菜单
             let parentData = menuMap.get(parentId);
             //如果父节点存在
             if (parentData) {
-              parentData.alwaysShow = true
-              parentData.path = menuModel.path
-              parentData.name = menuModel.name
-              parentData.meta = menuModel.meta
-              parentData.children.splice(0)
+              //修改父节点
+              if (!parentData.alwaysShow) {
+                parentData.alwaysShow = true
+                let meta = {title: parentData.metaTitle, icon: parentData.metaIcon}
+                parentData.meta = meta
+                parentData.children = []
+              }
               parentData.children.push(menuModel)
             } else {
               menuMap.set(parentId, {
@@ -127,6 +149,7 @@ const actions = {
         for (let item of menuMap) {
           menuRouters.push(item[1])
         }
+        console.log(JSON.stringify(menuRouters))
         commit('SET_USER_ROUTERS', menuRouters.concat(constantRoutes));
         commit('SET_BUTTONS', btnList)
         commit('SET_ROLES', roles)

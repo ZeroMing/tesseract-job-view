@@ -21,6 +21,7 @@ export default {
   },
   listToTreeData(list) {
     let treeDataMap = new Map();
+    let treeList = []
     for (let item of list) {
       let id = item.id
       let metaTitle = item.metaTitle
@@ -46,12 +47,18 @@ export default {
         treeDataMap.set(parentId, parentValue)
       }
       //保存当前节点
-      let currentValue = {id: id, label: metaTitle, children: []}
+      let currentValue = {id: id, label: metaTitle, isLeaf: true, children: []}
       treeDataMap.set(id, currentValue)
       //将当前节点加入到父节点
       parentValue.children.push(currentValue)
     }
-    return treeDataMap
+    for (let treeData of treeDataMap) {
+      if (!treeData[1].isLeaf) {
+        treeList.push(treeData[1])
+      }
+    }
+    debugger
+    return {treeDataMap, treeList}
   },
   clearObject(obj) {
     for (let key in obj) {

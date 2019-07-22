@@ -96,6 +96,8 @@
             <el-tree
               :data="menuTreeData"
               show-checkbox
+              check-strictly="true"
+              highlight-current="true"
               node-key="id"
               ref="tree"
               @node-click="nodeClick"
@@ -227,16 +229,13 @@
         this.menuBtnMap = new Map()
         this.prevNode = null
         this.btnCheckList = []
-        this.menuTreeData = []
         let $this = this
         commonUtils.clearObject(this.roleInfo)
         Promise.all([getAllMenu(), getAllBtn()]).then((response) => {
-          let map = commonUtils.listToTreeData(response[0])
-          $this.menuDataMap = map
+          let {treeDataMap, treeList} = commonUtils.listToTreeData(response[0])
+          $this.menuDataMap = treeDataMap
           //把菜单树形放入list
-          for (let item of map) {
-            $this.menuTreeData.push(item[1])
-          }
+          this.menuTreeData = treeList
           //把按钮放入tmpBtnList
           $this.btnList = response[1]
           $this.btnMap = commonUtils.listToMap(response[1], 'btnName', 'id')

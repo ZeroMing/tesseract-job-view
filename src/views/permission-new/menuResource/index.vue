@@ -45,7 +45,7 @@
 
         <el-table-column align="center" label="是否缓存">
           <template slot-scope="scope">
-            <span>{{ cacheMap.get(scope.row.metaNoCache)}}</span>
+            <span>{{ cacheMap.get(scope.row.metaCache)}}</span>
           </template>
         </el-table-column>
 
@@ -122,8 +122,8 @@
           <el-input ref="metaTitle" v-model="menuInfo.metaTitle" placeholder="菜单标题"/>
         </el-form-item>
 
-        <el-form-item label="是否缓存" prop="metaNoCache">
-          <el-radio-group v-model="menuInfo.metaNoCache">
+        <el-form-item label="是否缓存" prop="metaCache">
+          <el-radio-group v-model="menuInfo.metaCache">
             <el-radio :label="0">不缓存</el-radio>
             <el-radio :label="1">缓存</el-radio>
           </el-radio-group>
@@ -156,7 +156,7 @@
     directives: {elDragDialog},
     data() {
       let validateCache = (rule, value, callback) => {
-        if (data.menuInfo.metaNoCache) {
+        if (data.menuInfo.metaCache || data.menuInfo.metaCache == 0) {
           callback()
         } else {
           callback(new Error('请选择是否缓存'));
@@ -168,7 +168,7 @@
           path: [{required: true, message: '请输入路径', trigger: 'blur'}],
           description: [{required: true, message: '输入菜单描述', trigger: 'blur'}],
           metaTitle: [{required: true, message: '请输入菜单标题', trigger: 'blur'}],
-          metaNoCache: [{validator: validateCache, trigger: 'blur'}]
+          metaCache: [{validator: validateCache, trigger: 'blur'}]
         },
         menuList: [],
         defaultProps: {
@@ -178,7 +178,7 @@
         menuDataMap: null,
         menuTreeData: [],
         expandedKeyList: [],
-        checkedKeyList: [],
+        checkedKeyList: [1, 2, 3],
         selectInfo:
           {
             currentPage: 1,
@@ -196,7 +196,7 @@
           name: null,
           path: null,
           metaTitle: null,
-          metaNoCache: null,
+          metaCache: null,
           menuDesc: null
         },
         listLoading: false,
@@ -231,36 +231,40 @@
         let $this = this
         // 获取菜单列表
         getAllMenu().then((response) => {
-          let map = commonUtils.listToTreeData(response)
-          $this.menuDataMap = map
+          let {treeDataMap, treeList} = commonUtils.listToTreeData(response)
+          $this.menuDataMap = treeDataMap
           //把菜单树形放入list
-          this.menuTreeData.splice(0)
-          for (let item of map) {
-            this.menuTreeData.push(item[1])
-          }
+          this.menuTreeData = treeList
           commonUtils.clearObject(this.menuInfo)
-          this.checkedKeyList.splice(0)
-          this.expandedKeyList.splice(0)
+          this.checkedKeyList = []
+          this.expandedKeyList = []
           if (row) {
             this.menuInfo.id = row.id
             this.menuInfo.name = row.name
             this.menuInfo.path = row.path
             this.menuInfo.metaTitle = row.metaTitle
-            this.menuInfo.metaNoCache = row.metaNoCache
+            this.menuInfo.metaCache = row.metaCache
             this.menuInfo.menuDesc = row.menuDesc
-            this.checkedKeyList.push(row.parentId)
-            this.expandedKeyList.push(row.parentId)
+            if (row.parentId != 0) {
+              this.checkedKeyList.push(row.parentId)
+              this.expandedKeyList.push(row.parentId)
+            }
           }
           this.dialogTableVisible = true
         })
       },
       saveMenu() {
         this.$refs.menuForm.validate(valid => {
+          let checkedNodes = this.$refs.tree.getCheckedNodes()
+          if (checkedNodes.length > 1) {
+            this.$alert("父菜单只能选择一个")
+            return
+          }
           if (valid) {
-            let menuData = this.menuDataMap.get(this.checkedKeyList[0]);
-            if (menuData != null) {
+            let menuData = this.menuDataMap.get(checkedNodes[0].id)
+            if (menuData) {
               this.menuInfo.parentId = menuData.id
-              this.menuInfo.parentName = menuData.name
+              this.menuInfo.parentName = menuData.label
             }
             addMenu(this.menuInfo).then(() => {
               this.$message({
