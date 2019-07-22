@@ -81,26 +81,52 @@ const actions = {
 
         // 存放路由数据
         const menuRouters = []
-        // 获取一级菜单路由
+        // 获取一级菜单路由，占时先支持二级菜单
+        let menuMap = new Map()
         menuList.forEach((menu, i) => {
-          let alwaysShow = menu.alwaysShowFlag === 1 ? true : false;
-          if (menu.parentId == null || menu.parentId === 0) {
-            const module = {
+          let parentId = menu.parentId;
+          let menuModel = {
+            path: menu.path,
+            component: Layout,
+            redirect: menu.redirect,
+            hidden: menu.hidden === 1,
+            children: [{
+              meta: {title: menu.metaTitle, icon: menu.metaIcon},
               path: menu.path,
-              component: Layout,
-              children: [
-                {
-                  path: menu.path,
-                  component: () => import(`@/views${menu.path}`),
-                  name: menu.name,
-                  meta: {title: menu.metaTitle, icon: menu.metaIcon}
-                }
-              ]
-            }
-            menuRouters.push(module)
+              name: menu.name,
+              component: () => import(`@/views${menu.path}`),
+            }]
           }
+          //根结点
+          if (parentId === 0) {
+            menuMap.set(menu.id, menuModel)
+          } else {
+            //二级菜单
+            let parentData = menuMap.get(parentId);
+            //如果父节点存在
+            if (parentData) {
+              parentData.alwaysShow = true
+              parentData.path = menuModel.path
+              parentData.name = menuModel.name
+              parentData.meta = menuModel.meta
+              parentData.children.splice(0)
+              parentData.children.push(menuModel)
+            } else {
+              menuMap.set(parentId, {
+                path: null,
+                alwaysShow: true,
+                component: Layout,
+                meta: {},
+                name: {},
+                children: [menuModel]
+              })
+            }
+          }
+          //二级菜单
         })
-
+        for (let item of menuMap) {
+          menuRouters.push(item[1])
+        }
         commit('SET_USER_ROUTERS', menuRouters.concat(constantRoutes));
         commit('SET_BUTTONS', btnList)
         commit('SET_ROLES', roles)

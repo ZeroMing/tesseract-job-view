@@ -15,7 +15,13 @@ export function btnList(params) {
     params: params
   })
 }
-
+export function btnListByMenuIdAndRoleId(params) {
+  return request({
+    url: '/tesseract-btn-resource/btnListByMenuIdAndRoleId',
+    method: 'get',
+    params: params
+  })
+}
 
 export function addBtn(data) {
   return request({

@@ -1,10 +1,12 @@
 import commonUtils from '@/utils/commonUtils'
 
-const strategyList = [{key: 0, value: 'hash随机'}, {key: 2, value: '负载均衡'}]
-const statusList = [{key: null, value: '全部'}, {key: 0, value: '停止'}, {key: 1, value: '已启动'}]
+const btnList = [
+  {key: 'select', value: '查询'},
+  {key: 'add', value: '增加'},
+  {key: 'delete', value: '删除'},
+  {key: 'edit', value: '编辑'}
+]
 export default {
-  strategyList: strategyList,
-  statusList: statusList,
-  strategyMap: commonUtils.listToMap(strategyList),
-  statusMap: commonUtils.listToMap(statusList)
+  btnList: btnList,
+  btnMap: commonUtils.listToMap(btnList),
 }

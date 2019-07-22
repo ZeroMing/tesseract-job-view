@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row>
       <el-form :inline="true" :model="selectInfo">
-        <div v-if="$store.getters.buttons.contains('/group/index/select')">
+        <div v-if="$store.getters.buttons.contains('/group/index/select')" style="display: inline">
           <el-form-item label="组名称">
             <el-input v-model="selectInfo.name" placeholder="组名称"/>
           </el-form-item>

@@ -125,7 +125,7 @@
               执行
             </el-button>
             <el-button
-              v-if="scope.row.status==0 || $store.getters.buttons.contains('/trigger/index/edit')"
+              v-if="scope.row.status==0 && $store.getters.buttons.contains('/trigger/index/edit')"
               type="success"
               size="small"
               icon="el-icon-edit"
@@ -135,7 +135,7 @@
               启动
             </el-button>
             <el-button
-              v-if="scope.row.status==1 || $store.getters.buttons.contains('/trigger/index/edit')"
+              v-if="scope.row.status==1 && $store.getters.buttons.contains('/trigger/index/edit')"
               type="info"
               size="small"
               icon="el-icon-edit"

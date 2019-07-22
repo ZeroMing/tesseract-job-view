@@ -84,7 +84,7 @@ export const constantRoutes = [
   {
     path: '/permission-new',
     component: Layout,
-    redirect: '/permission-new/menuResource/index',
+    //redirect: '/permission-new/menuResource/index',
     alwaysShow: true, // will always show the root menu
     name: 'Permission',
     meta: {

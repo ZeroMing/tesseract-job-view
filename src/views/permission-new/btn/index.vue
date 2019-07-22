@@ -26,18 +26,6 @@
           </template>
         </el-table-column>
 
-        <el-table-column align="center" label="所属菜单">
-          <template slot-scope="scope">
-            <span>{{ scope.row.menuName }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column align="center" label="所属菜单路径">
-          <template slot-scope="scope">
-            <span>{{ scope.row.menuPath }}</span>
-          </template>
-        </el-table-column>
-
         <el-table-column align="center" label="创建人">
           <template slot-scope="scope">
             <span>{{ scope.row.createUserName }}</span>
@@ -53,7 +41,7 @@
         <el-table-column align="center" label="操作" width="440">
           <template slot-scope="scope">
             <el-button
-              type="warning"
+              type="primary"
               size="small"
               icon="el-icon-edit"
               @click="addBtnInfo(scope.row)"
@@ -90,11 +78,7 @@
         <el-form-item label="按钮名" prop="btnName">
           <el-input ref="name" v-model="btnInfo.btnName" placeholder="按钮名"/>
         </el-form-item>
-        <el-form-item label="所属菜单" prop="btnMenu">
-          <el-select v-model="btnInfo.menuId" placeholder="所属菜单">
-            <el-option v-for="menu in menuList" :label="menu.metaTitle" :value="menu.id"/>
-          </el-select>
-        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" @click="saveBtn">保存</el-button>
         </el-form-item>
@@ -136,8 +120,7 @@
         ,
         dialogTableVisible: false,
         btnInfo: {
-          btnName: null,
-          menuId: 1
+          btnName: null
         },
         listLoading: false,
         menuList: []
@@ -170,10 +153,8 @@
           this.menuList = response
           if (row) {
             this.btnInfo.id = row.id
-            this.btnInfo.menuId = row.menuId
             this.btnInfo.btnName = row.btnName
           } else {
-            this.btnInfo.menuId = response[0].id
             this.btnInfo.id = null
             this.btnInfo.btnName = null
           }
@@ -184,19 +165,25 @@
         this.$refs.btnForm.validate(valid => {
           if (valid) {
             addBtn(this.btnInfo).then(() => {
-              this.$alert('保存成功')
+              this.$message({
+                message: '保存成功',
+                type: 'success'
+              });
               this.getBtnList()
               this.dialogTableVisible = false
             })
           } else {
-            this.$alert('表单填写错误')
+            this.$message.error('表单填写错误')
             return false
           }
         })
       },
       deleteBtn(row) {
         deleteBtn({btnId: row.id}).then(() => {
-          this.$alert('删除成功')
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          });
           this.getBtnList()
         })
       }

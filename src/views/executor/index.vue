@@ -2,20 +2,22 @@
   <div class="app-container">
     <el-row>
       <el-form :inline="true" :model="selectInfo">
-        <el-form-item label="执行器名称">
-          <el-input v-model="selectInfo.name" placeholder="执行器名称"/>
-        </el-form-item>
-        <el-form-item label="创建人">
-          <el-input v-model="selectInfo.creator" placeholder="创建人"/>
-        </el-form-item>
-        <el-form-item>
-          <el-button v-if="$store.getters.buttons.contains('/executor/index/select')" type="primary"
-                     @click="getExecutorList">查询
-          </el-button>
-        </el-form-item>
+        <div v-if="$store.getters.buttons.contains('/executor/index/select')" style="display: inline">
+          <el-form-item label="执行器名称">
+            <el-input v-model="selectInfo.name" placeholder="执行器名称"/>
+          </el-form-item>
+          <el-form-item label="创建人">
+            <el-input v-model="selectInfo.creator" placeholder="创建人"/>
+          </el-form-item>
+          <el-form-item>
+            <el-button v-if="$store.getters.buttons.contains('/executor/index/select')" type="primary"
+                       @click="getExecutorList">查询
+            </el-button>
+          </el-form-item>
+        </div>
         <el-form-item>
           <el-button v-if="$store.getters.buttons.contains('/executor/index/add')" type="success"
-                     @click="addExecutorBtn">新增执行器
+                     @click="addExecutorBtn(null)">新增执行器
           </el-button>
         </el-form-item>
       </el-form>
@@ -62,11 +64,11 @@
         <el-table-column align="center" label="操作" width="300">
           <template slot-scope="scope">
             <el-button
-              v-if="$store.getters.buttons.contains('modify') && $store.getters.buttons.contains('/executor/index/edit')"
+              v-if="$store.getters.buttons.contains('/executor/index/edit')"
               type="warning"
               size="small"
               icon="el-icon-edit"
-              @click="modify(scope.row)"
+              @click="addExecutorBtn(scope.row)"
             >
               修改
             </el-button>
@@ -152,7 +154,8 @@
       this.getExecutorList()
     },
     methods: {
-      addExecutorBtn() {
+      addExecutorBtn(row) {
+        commonUtils.clearObject(this.executorInfo)
         getAllGroup().then(response => {
           if (response.length == 0) {
             this.$alert('请先创建组')
@@ -160,6 +163,13 @@
           }
           this.groupList = response
           this.groupMap = commonUtils.listToObjectMap(response, 'id')
+          if (row) {
+            this.executorInfo.name = row.executor.name
+            this.executorInfo.groupId = row.executor.groupId
+            this.executorInfo.description = row.executor.description
+          } else {
+            this.executorInfo.groupId = response[0].id
+          }
           this.dialogTableVisible = true
         })
       },
@@ -199,18 +209,6 @@
             this.$alert('表单填写错误')
             return false
           }
-        })
-      },
-      modify(row) {
-        getAllGroup().then(response => {
-          if (response.length == 0) {
-            this.$alert('请先创建组')
-            return
-          }
-          this.groupList = response
-          this.groupMap = commonUtils.listToObjectMap(response, 'id')
-          this.executorInfo = row.executor
-          this.dialogTableVisible = true
         })
       },
       deleteExecutor(row) {
