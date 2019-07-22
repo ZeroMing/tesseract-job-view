@@ -20,9 +20,9 @@
             <span>{{ scope.row.id }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="菜单名">
+        <el-table-column align="center" label="菜单名" width="100">
           <template slot-scope="scope">
-            <span>{{ scope.row.name }}</span>
+            <span>{{ scope.row.metaTitle }}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="父菜单">
@@ -31,15 +31,21 @@
           </template>
         </el-table-column>
 
-        <el-table-column align="center" label="路径">
+        <el-table-column align="center" label="资源路径" width="150">
           <template slot-scope="scope">
-            <span>{{ scope.row.path }}</span>
+            <span>{{ scope.row.fullPath }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column align="center" label="展示名称">
+        <el-table-column align="center" label="路由名">
           <template slot-scope="scope">
-            <span>{{ scope.row.metaTitle }}</span>
+            <span>{{ scope.row.name }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column align="center" label="路由路径">
+          <template slot-scope="scope">
+            <span>{{ scope.row.path }}</span>
           </template>
         </el-table-column>
 
@@ -61,7 +67,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column align="center" label="操作" width="440">
+        <el-table-column align="center" label="操作" width="200">
           <template slot-scope="scope">
             <el-button
               type="warning"
@@ -98,8 +104,24 @@
     <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="菜单信息" @dragDialog="handleDrag">
       <el-form ref="menuForm" :inline="false" :model="menuInfo" :rules="menuRules" label-width="120px">
 
-        <el-form-item label="菜单名" prop="name">
-          <el-input ref="name" v-model="menuInfo.name" placeholder="菜单名"/>
+        <el-form-item label="路由路径" prop="path">
+          <el-input ref="path" v-model="menuInfo.path" placeholder="路由路径"/>
+        </el-form-item>
+
+        <el-form-item label="路由名" prop="path">
+          <el-input ref="path" v-model="menuInfo.name" placeholder="路由名"/>
+        </el-form-item>
+
+        <el-form-item label="资源路径" prop="path">
+          <el-input ref="fullPath" v-model="menuInfo.fullPath" placeholder="资源路径"/>
+        </el-form-item>
+
+        <el-form-item label="展示标题" prop="metaTitle">
+          <el-input ref="metaTitle" v-model="menuInfo.metaTitle" placeholder="展示标题"/>
+        </el-form-item>
+
+        <el-form-item label="重定向路径" prop="redirect">
+          <el-input ref="path" v-model="menuInfo.redirect" placeholder="重定向路径"/>
         </el-form-item>
 
         <el-form-item label="父菜单">
@@ -112,14 +134,6 @@
             :default-checked-keys="checkedKeyList"
             :props="defaultProps">
           </el-tree>
-        </el-form-item>
-
-        <el-form-item label="路径" prop="path">
-          <el-input ref="path" v-model="menuInfo.path" placeholder="路径"/>
-        </el-form-item>
-
-        <el-form-item label="菜单标题" prop="metaTitle">
-          <el-input ref="metaTitle" v-model="menuInfo.metaTitle" placeholder="菜单标题"/>
         </el-form-item>
 
         <el-form-item label="是否缓存" prop="metaCache">
@@ -164,10 +178,11 @@
       };
       let data = {
         menuRules: {
-          name: [{required: true, message: '请输入菜单名', trigger: 'blur'}],
-          path: [{required: true, message: '请输入路径', trigger: 'blur'}],
+          name: [{required: true, message: '请输入路由名', trigger: 'blur'}],
+          path: [{required: true, message: '请输入路由路径', trigger: 'blur'}],
+          fullPath: [{required: true, message: '请输入资源路径', trigger: 'blur'}],
           description: [{required: true, message: '输入菜单描述', trigger: 'blur'}],
-          metaTitle: [{required: true, message: '请输入菜单标题', trigger: 'blur'}],
+          metaTitle: [{required: true, message: '请输入菜单显示名字', trigger: 'blur'}],
           metaCache: [{validator: validateCache, trigger: 'blur'}]
         },
         menuList: [],
@@ -242,6 +257,7 @@
             this.menuInfo.id = row.id
             this.menuInfo.name = row.name
             this.menuInfo.path = row.path
+            this.menuInfo.fullPath = row.path
             this.menuInfo.metaTitle = row.metaTitle
             this.menuInfo.metaCache = row.metaCache
             this.menuInfo.menuDesc = row.menuDesc

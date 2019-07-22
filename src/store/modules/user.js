@@ -96,7 +96,7 @@ const actions = {
               meta: {title: menu.metaTitle, icon: menu.metaIcon},
               path: menu.path,
               name: menu.name,
-              component: () => import(`@/views${menu.path}`),
+              component: () => import(`@/views${menu.fullPath}`),
             }]
           }
           //根结点
@@ -112,6 +112,7 @@ const actions = {
               currentMenu.meta.title = menu.metaTitle
               currentMenu.meta.icon = menu.metaIcon
               currentMenu.name = menu.name
+              currentMenu.redirect = menu.redirect
             }
           } else {
             //修改model为子菜单
@@ -119,7 +120,7 @@ const actions = {
               meta: {title: menu.metaTitle, icon: menu.metaIcon},
               path: menu.path,
               name: menu.name,
-              component: () => import(`@/views${menu.path}`),
+              component: () => import(`@/views${menu.fullPath}`),
             }
             //二级菜单
             let parentData = menuMap.get(parentId);
@@ -136,6 +137,7 @@ const actions = {
             } else {
               menuMap.set(parentId, {
                 path: null,
+                redirect: null,
                 alwaysShow: true,
                 component: Layout,
                 meta: {},

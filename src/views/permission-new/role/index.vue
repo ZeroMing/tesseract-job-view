@@ -96,7 +96,6 @@
             <el-tree
               :data="menuTreeData"
               show-checkbox
-              check-strictly="true"
               highlight-current="true"
               node-key="id"
               ref="tree"
