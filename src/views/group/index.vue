@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row>
       <el-form :inline="true" :model="selectInfo">
-        <div v-if="$store.getters.buttons.contains('/group/index/select')" style="display: inline">
+        <div v-if="$store.getters.buttons.contains('/permission-new/group/index/select')" style="display: inline">
           <el-form-item label="组名称">
             <el-input v-model="selectInfo.name" placeholder="组名称"/>
           </el-form-item>
@@ -15,7 +15,7 @@
         </div>
         <el-form-item>
           <el-button type="success" @click="dialogTableVisible=true"
-                     v-if="$store.getters.buttons.contains('/group/index/add')">新增组
+                     v-if="$store.getters.buttons.contains('/permission-new/group/index/add')">新增组
           </el-button>
         </el-form-item>
       </el-form>
@@ -65,14 +65,15 @@
         </el-table-column>
 
         <el-table-column align="center" label="操作" width="300"
-                         v-if="$store.getters.buttons.contains('/group/index/edit') || $store.getters.buttons.contains('/group/index/delete') ">
+                         v-if="$store.getters.buttons.contains('/permission-new/group/index/edit')
+                         || $store.getters.buttons.contains('/permission-new/group/index/delete') ">
           <template slot-scope="scope">
             <el-button
               type="warning"
               size="small"
               icon="el-icon-edit"
               @click="modify(scope.row)"
-              v-if="$store.getters.buttons.contains('/group/index/edit')"
+              v-if="$store.getters.buttons.contains('/permission-new/group/index/edit')"
             >
               修改
             </el-button>
@@ -82,7 +83,7 @@
               size="small"
               icon="el-icon-delete"
               @click="deleteGroup(scope.row)"
-              v-if="$store.getters.buttons.contains('/group/index/delete')"
+              v-if="$store.getters.buttons.contains('/permission-new/group/index/delete')"
             >
               删除
             </el-button>

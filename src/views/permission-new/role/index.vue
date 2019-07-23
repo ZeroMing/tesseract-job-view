@@ -94,9 +94,11 @@
         <el-form-item label="菜单">
           <el-col :span="12">
             <el-tree
+              @check="nodeCheck"
+              :check-strictly="true"
               :data="menuTreeData"
               show-checkbox
-              highlight-current="true"
+              :highlight-current="true"
               node-key="id"
               ref="tree"
               @node-click="nodeClick"
@@ -110,6 +112,9 @@
               <el-checkbox v-for="btn in btnList" :label="btn.btnName"></el-checkbox>
             </el-checkbox-group>
           </el-col>
+        </el-form-item>
+        <el-form-item label="角色描述" props="roleDesc">
+          <el-input ref="roleDesc" v-model="roleInfo.roleDesc" placeholder="角色描述"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="saveRole">保存</el-button>
@@ -146,6 +151,7 @@
         checkedKeyList: [],
         roleRules: {
           roleName: [{required: true, message: '请输入角色名', trigger: 'blur'}],
+          roleDesc: [{required: true, message: '请输入角色描述', trigger: 'blur'}],
         },
         roleList: [],
         btnCheckList: [],
@@ -166,6 +172,7 @@
         dialogTableVisible: false,
         roleInfo: {
           roleName: null,
+          roleDesc: null,
           id: null
         },
         listLoading: false,
@@ -178,7 +185,18 @@
       this.getRoleList()
     },
     methods: {
-      nodeClick(menu) {
+      nodeCheck(menu, menuNode) {
+        //如果选择节点拥有父节点则默认选中父节点
+        // alert(JSON.stringify(menu))
+        // let node = menuNode
+        // console.log(node)
+        // console.log(menu)
+        // while (node.isLeaf) {
+        //   this.$refs.tree.setCheckedKeys([node.parent.id]);
+        //   node = menuNode.parent
+        // }
+      },
+      nodeClick(menu, menuNode) {
         //保存上一次按钮选择状态
         if (this.prevNode) {
           this.menuBtnMap.set(this.prevNode.id, this.btnCheckList)
@@ -228,6 +246,7 @@
         this.menuBtnMap = new Map()
         this.prevNode = null
         this.btnCheckList = []
+        this.checkedKeyList = []
         let $this = this
         commonUtils.clearObject(this.roleInfo)
         Promise.all([getAllMenu(), getAllBtn()]).then((response) => {
@@ -244,10 +263,9 @@
                 $this.checkedKeyList = response
                 $this.expandedKeyList = response
                 if (row) {
-                  let roleName = row.roleName;
-                  let id = row.id;
-                  this.roleInfo.roleId = id
-                  this.roleInfo.roleName = roleName
+                  this.roleInfo.roleId = row.id
+                  this.roleInfo.roleName = row.roleName
+                  this.roleInfo.roleDesc = row.roleDesc
                 }
                 this.dialogTableVisible = true
               }
@@ -266,13 +284,15 @@
             }
             //将菜单绑定到传输数据中
             let menuInfo = []
-            //获取选择所有菜单节点
+            //获取所有点击节点，只更新点击过的节点按钮权限
             let checkedNodes = this.$refs.tree.getCheckedNodes()
             for (let node of checkedNodes) {
               //获取菜单下选择的按钮
               let checkedBtnNameList = this.menuBtnMap.get(node.id)
-              let btnList = []
+              let btnList = null
               if (checkedBtnNameList) {
+                //如果不为空证明点击过，将按钮放入列表后端更新
+                btnList = []
                 for (let btnName of checkedBtnNameList) {
                   btnList.push({id: this.btnMap.get(btnName), name: btnName})
                 }
@@ -280,6 +300,7 @@
               menuInfo.push({menuId: node.id, menuName: node.label, btnList: btnList})
             }
             this.roleInfo.menuInfo = menuInfo
+            //return
             addRole(this.roleInfo).then(() => {
               this.$message({
                 message: '保存成功',
