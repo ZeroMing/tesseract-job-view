@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Vue Element Admin',
+  title: 'Tesseract Job',
 
   /**
    * @type {boolean} true | false
