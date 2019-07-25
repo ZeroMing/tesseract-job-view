@@ -164,6 +164,7 @@
           this.groupList = response
           this.groupMap = commonUtils.listToObjectMap(response, 'id')
           if (row) {
+            this.executorInfo.id = row.executor.id
             this.executorInfo.name = row.executor.name
             this.executorInfo.groupId = row.executor.groupId
             this.executorInfo.description = row.executor.description
