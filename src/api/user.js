@@ -40,6 +40,14 @@ export function addUser(data) {
   })
 }
 
+export function modifyPassword(data) {
+  return request({
+    url: '/tesseract-user/modifyPassword',
+    method: 'post',
+    data: data
+  })
+}
+
 export function statisticsUser(params) {
   return request({
     url: '/tesseract-user/statisticsUser',

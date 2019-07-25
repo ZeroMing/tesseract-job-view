@@ -10,7 +10,7 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
-        <search id="header-search" class="right-menu-item"/>
+<!--        <search id="header-search" class="right-menu-item"/>-->
 
         <error-log class="errLog-container right-menu-item hover-effect"/>
 
@@ -28,9 +28,9 @@
           <i class="el-icon-caret-bottom"/>
         </div>
         <el-dropdown-menu slot="dropdown">
-          <router-link to="/profile/index">
-            <el-dropdown-item>用户信息</el-dropdown-item>
-          </router-link>
+<!--          <router-link to="/profile/index">-->
+          <!--            <el-dropdown-item>用户信息</el-dropdown-item>-->
+          <!--          </router-link>-->
           <!--<router-link to="/">-->
           <!--<el-dropdown-item>Dashboard</el-dropdown-item>-->
           <!--</router-link>-->
@@ -50,40 +50,41 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import Breadcrumb from '@/components/Breadcrumb'
-import Hamburger from '@/components/Hamburger'
-import ErrorLog from '@/components/ErrorLog'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import Search from '@/components/HeaderSearch'
+  import {mapGetters} from 'vuex'
+  import Breadcrumb from '@/components/Breadcrumb'
+  import Hamburger from '@/components/Hamburger'
+  import ErrorLog from '@/components/ErrorLog'
+  import Screenfull from '@/components/Screenfull'
+  import SizeSelect from '@/components/SizeSelect'
+  import Search from '@/components/HeaderSearch'
 
-export default {
-  components: {
-    Breadcrumb,
-    Hamburger,
-    ErrorLog,
-    Screenfull,
-    SizeSelect,
-    Search
-  },
-  computed: {
-    ...mapGetters([
-      'sidebar',
-      'avatar',
-      'device'
-    ])
-  },
-  methods: {
-    toggleSideBar() {
-      this.$store.dispatch('app/toggleSideBar')
+  export default {
+    components: {
+      Breadcrumb,
+      Hamburger,
+      ErrorLog,
+      Screenfull,
+      SizeSelect,
+      Search
     },
-    async logout() {
-      await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    computed: {
+      ...mapGetters([
+        'sidebar',
+        'avatar',
+        'device'
+      ])
+    },
+    methods: {
+      toggleSideBar() {
+        this.$store.dispatch('app/toggleSideBar')
+      },
+      async logout() {
+        await this.$store.dispatch('user/logout')
+        await this.$store.dispatch('tagsView/delAllViews')
+        this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      }
     }
   }
-}
 </script>
 
 <style lang="scss" scoped>

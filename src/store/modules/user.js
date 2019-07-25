@@ -53,7 +53,7 @@ const actions = {
         commit('SET_TOKEN', userInfo.token)
         commit('SET_USER_INFO', userInfo)
         setToken(userInfo.token)
-        resolve()
+        resolve(userInfo)
       }).catch(error => {
         reject(error)
       })
@@ -151,7 +151,6 @@ const actions = {
         for (let item of menuMap) {
           menuRouters.push(item[1])
         }
-        console.log(JSON.stringify(menuRouters))
         commit('SET_USER_ROUTERS', menuRouters.concat(constantRoutes));
         commit('SET_BUTTONS', btnList)
         commit('SET_ROLES', roles)

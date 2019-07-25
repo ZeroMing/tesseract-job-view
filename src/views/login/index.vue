@@ -15,7 +15,7 @@
 
       <el-form-item prop="username">
         <span class="svg-container">
-          <svg-icon icon-class="user" />
+          <svg-icon icon-class="user"/>
         </span>
         <el-input
           ref="username"
@@ -31,7 +31,7 @@
       <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
         <el-form-item prop="password">
           <span class="svg-container">
-            <svg-icon icon-class="password" />
+            <svg-icon icon-class="password"/>
           </span>
           <el-input
             :key="passwordType"
@@ -47,7 +47,7 @@
             @keyup.enter.native="handleLogin"
           />
           <span class="show-pwd" @click="showPwd">
-            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"/>
           </span>
         </el-form-item>
       </el-tooltip>
@@ -67,126 +67,143 @@
       <br>
       <br>
       <br>
-      <social-sign />
+      <social-sign/>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
-import SocialSign from './components/SocialSignin'
+  import {validUsername} from '@/utils/validate'
+  import SocialSign from './components/SocialSignin'
+  import {modifyPassword} from '@/api/user'
 
-export default {
-  name: 'Login',
-  components: { SocialSign },
-  data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 4) {
-        callback(new Error('The password can not be less than 6 digits'))
-      } else {
-        callback()
-      }
-    }
-    return {
-      loginForm: {
-        username: 'admin',
-        password: 'admin'
-      },
-      loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
-      },
-      passwordType: 'password',
-      capsTooltip: false,
-      loading: false,
-      showDialog: false,
-      redirect: undefined,
-      otherQuery: {}
-    }
-  },
-  watch: {
-    $route: {
-      handler: function(route) {
-        const query = route.query
-        if (query) {
-          this.redirect = query.redirect
-          this.otherQuery = this.getOtherQuery(query)
-        }
-      },
-      immediate: true
-    }
-  },
-  created() {
-    // window.addEventListener('storage', this.afterQRScan)
-  },
-  mounted() {
-    if (this.loginForm.username === '') {
-      this.$refs.username.focus()
-    } else if (this.loginForm.password === '') {
-      this.$refs.password.focus()
-    }
-  },
-  destroyed() {
-    // window.removeEventListener('storage', this.afterQRScan)
-  },
-  methods: {
-    checkCapslock({ shiftKey, key } = {}) {
-      if (key && key.length === 1) {
-        if (shiftKey && (key >= 'a' && key <= 'z') || !shiftKey && (key >= 'A' && key <= 'Z')) {
-          this.capsTooltip = true
+  export default {
+    name: 'Login',
+    components: {SocialSign},
+    data() {
+      const validateUsername = (rule, value, callback) => {
+        if (!validUsername(value)) {
+          callback(new Error('Please enter the correct user name'))
         } else {
+          callback()
+        }
+      }
+      const validatePassword = (rule, value, callback) => {
+        if (value.length < 4) {
+          callback(new Error('The password can not be less than 6 digits'))
+        } else {
+          callback()
+        }
+      }
+      return {
+        loginForm: {
+          username: 'admin',
+          password: 'admin'
+        },
+        loginRules: {
+          username: [{required: true, trigger: 'blur', validator: validateUsername}],
+          password: [{required: true, trigger: 'blur', validator: validatePassword}]
+        },
+        passwordType: 'password',
+        capsTooltip: false,
+        loading: false,
+        showDialog: false,
+        redirect: undefined,
+        otherQuery: {}
+      }
+    },
+    watch: {
+      $route: {
+        handler: function (route) {
+          const query = route.query
+          if (query) {
+            this.redirect = query.redirect
+            this.otherQuery = this.getOtherQuery(query)
+          }
+        },
+        immediate: true
+      }
+    },
+    created() {
+      // window.addEventListener('storage', this.afterQRScan)
+    },
+    mounted() {
+      if (this.loginForm.username === '') {
+        this.$refs.username.focus()
+      } else if (this.loginForm.password === '') {
+        this.$refs.password.focus()
+      }
+    },
+    destroyed() {
+      // window.removeEventListener('storage', this.afterQRScan)
+    },
+    methods: {
+      checkCapslock({shiftKey, key} = {}) {
+        if (key && key.length === 1) {
+          if (shiftKey && (key >= 'a' && key <= 'z') || !shiftKey && (key >= 'A' && key <= 'Z')) {
+            this.capsTooltip = true
+          } else {
+            this.capsTooltip = false
+          }
+        }
+        if (key === 'CapsLock' && this.capsTooltip === true) {
           this.capsTooltip = false
         }
-      }
-      if (key === 'CapsLock' && this.capsTooltip === true) {
-        this.capsTooltip = false
-      }
-    },
-    showPwd() {
-      if (this.passwordType === 'password') {
-        this.passwordType = ''
-      } else {
-        this.passwordType = 'password'
-      }
-      this.$nextTick(() => {
-        this.$refs.password.focus()
-      })
-    },
-    handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
-              this.loading = false
-            })
-            .catch(() => {
-              this.loading = false
-            })
+      },
+      showPwd() {
+        if (this.passwordType === 'password') {
+          this.passwordType = ''
         } else {
-          console.log('error submit!!')
-          return false
+          this.passwordType = 'password'
         }
-      })
-    },
-    getOtherQuery(query) {
-      return Object.keys(query).reduce((acc, cur) => {
-        if (cur !== 'redirect') {
-          acc[cur] = query[cur]
-        }
-        return acc
-      }, {})
+        this.$nextTick(() => {
+          this.$refs.password.focus()
+        })
+      },
+      handleLogin() {
+        this.$refs.loginForm.validate(valid => {
+          if (valid) {
+            this.loading = true
+            this.$store.dispatch('user/login', this.loginForm).then((userInfo) => {
+              //如果是初始密码提示先修改密码
+              if (userInfo.passwordInitial) {
+                this.loading = false
+                this.$prompt('请输入新密码', '修改密码', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  inputPattern: /.*/,
+                  inputErrorMessage: '密码格式不正确'
+                }).then(({value}) => {
+                  modifyPassword({id: userInfo.userId, password: value}).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '修改成功'
+                    });
+                  })
+                })
+              } else {
+                this.$router.push({path: '/', query: this.otherQuery})
+                this.loading = false
+              }
+            }).catch(() => {
+              this.loading = false
+            })
+          } else {
+            this.$alert('error submit!!')
+            return false
+          }
+        })
+      },
+      getOtherQuery(query) {
+        return Object.keys(query).reduce((acc, cur) => {
+          if (cur !== 'redirect') {
+            acc[cur] = query[cur]
+          }
+          return acc
+        }, {})
+      }
     }
   }
-}
 </script>
 
 <style lang="scss">
