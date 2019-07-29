@@ -101,6 +101,7 @@
         @current-change="pageChange"
       />
     </el-row>
+
     <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="菜单信息" @dragDialog="handleDrag">
       <el-form ref="menuForm" :inline="false" :model="menuInfo" :rules="menuRules" label-width="120px">
 
@@ -143,8 +144,12 @@
           </el-radio-group>
         </el-form-item>
 
+        <el-form-item label="菜单编码" prop="code"  v-if="showCode" >
+          <el-input ref="code" v-model="menuInfo.code" placeholder="菜单编码,设置后不可修改" />
+        </el-form-item>
+
         <el-form-item label="描述" prop="description">
-          <el-input v-model="menuInfo.description" type="textarea"/>
+          <el-input v-model="menuInfo.description" type="textarea" />
         </el-form-item>
 
         <el-form-item>
@@ -178,6 +183,7 @@
       };
       let data = {
         menuRules: {
+          code: [{required: true, message: '请输入菜单编码', trigger: 'blur'}],
           name: [{required: true, message: '请输入路由名', trigger: 'blur'}],
           path: [{required: true, message: '请输入路由路径', trigger: 'blur'}],
           fullPath: [{required: true, message: '请输入资源路径', trigger: 'blur'}],
@@ -208,6 +214,7 @@
         dialogTableVisible: false,
         menuInfo: {
           id: null,
+          code:null,
           name: null,
           path: null,
           metaTitle: null,
@@ -219,7 +226,8 @@
           [{"key": null, "value": "无"}],
         cacheList: constant.cacheList,
         cacheMap: constant.cacheMap,
-        menuDataMap: null
+        menuDataMap: null,
+        showCode:false,
       }
       return data
     },
@@ -244,6 +252,13 @@
       },
       addMenuInfo(row) {
         let $this = this
+        if(row){
+          $this.showCode = false;
+          row.code = null;
+        }else{
+          $this.showCode = true;
+        }
+
         // 获取菜单列表
         getAllMenu().then((response) => {
           let {treeDataMap, treeList} = commonUtils.listToTreeData(response)
@@ -255,6 +270,7 @@
           this.expandedKeyList = []
           if (row) {
             this.menuInfo.id = row.id
+            this.menuInfo.code = row.code
             this.menuInfo.name = row.name
             this.menuInfo.path = row.path
             this.menuInfo.fullPath = row.path

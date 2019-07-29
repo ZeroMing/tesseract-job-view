@@ -45,7 +45,7 @@
 
         <el-table-column align="center" label="创建时间" width="180">
           <template slot-scope="scope">
-            <!--            <span>{{ !scope.row.createTime || scope.row.createTime==0 ? '': parseTime(scope.row.createTime) }}</span>-->
+            <span>{{ !scope.row.createTime || scope.row.createTime==0 ? '': parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
 
@@ -86,6 +86,10 @@
     <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="按钮信息" @dragDialog="handleDrag">
       <el-form ref="btnForm" :inline="false" :model="btnInfo" :rules="btnRules" label-width="120px">
 
+        <el-form-item label="按钮编码" prop="btnCode" v-if="showCode">
+          <el-input ref="btnCode" v-model="btnInfo.btnCode" placeholder="按钮编码,设置后不能修改"/>
+        </el-form-item>
+
         <el-form-item label="按钮名" prop="btnName">
           <el-input ref="name" v-model="btnInfo.btnName" placeholder="按钮名"/>
         </el-form-item>
@@ -119,6 +123,7 @@
     data() {
       let data = {
         btnRules: {
+          btnCode: [{required: true, message: '请输入按钮编码', trigger: 'blur'}],
           btnName: [{required: true, message: '请输入按钮名', trigger: 'blur'}]
         },
         btnList: [],
@@ -135,7 +140,8 @@
           btnCode: null
         },
         listLoading: false,
-        menuList: []
+        menuList: [],
+        showCode: true,
       }
       return data
     },
@@ -164,6 +170,8 @@
         getAllMenu().then((response) => {
           this.menuList = response
           if (row) {
+            this.showCode = false
+            this.btnCode = null
             this.btnInfo.id = row.id
             this.btnInfo.btnName = row.btnName
             this.btnInfo.btnCode = row.btnCode
