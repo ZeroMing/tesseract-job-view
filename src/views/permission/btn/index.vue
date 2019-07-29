@@ -5,6 +5,9 @@
         <el-form-item label="按钮名">
           <el-input v-model="selectInfo.btnName" placeholder="按钮名"/>
         </el-form-item>
+        <el-form-item label="按钮标识">
+          <el-input v-model="selectInfo.btnCode" placeholder="按钮标识"/>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getBtnList">查询</el-button>
         </el-form-item>
@@ -20,11 +23,19 @@
             <span>{{ scope.row.id }}</span>
           </template>
         </el-table-column>
+
         <el-table-column align="center" label="按钮名">
           <template slot-scope="scope">
             <span>{{ scope.row.btnName }}</span>
           </template>
         </el-table-column>
+
+        <el-table-column align="center" label="按钮标识">
+          <template slot-scope="scope">
+            <span>{{ scope.row.btnCode }}</span>
+          </template>
+        </el-table-column>
+
 
         <el-table-column align="center" label="创建人">
           <template slot-scope="scope">
@@ -79,6 +90,10 @@
           <el-input ref="name" v-model="btnInfo.btnName" placeholder="按钮名"/>
         </el-form-item>
 
+        <el-form-item label="按钮标识" prop="btnCode">
+          <el-input ref="name" v-model="btnInfo.btnCode" placeholder="按钮标识，作为权限控制"/>
+        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" @click="saveBtn">保存</el-button>
         </el-form-item>
@@ -107,20 +122,17 @@
           btnName: [{required: true, message: '请输入按钮名', trigger: 'blur'}]
         },
         btnList: [],
-        selectInfo:
-          {
-            currentPage: 1,
-            pageSize:
-              10,
-            total:
-              0,
-            status:
-              null
-          }
-        ,
+        selectInfo: {
+          currentPage: 1,
+          pageSize: 10,
+          total: 0,
+          btnName: null,
+          btnCode: null
+        },
         dialogTableVisible: false,
         btnInfo: {
-          btnName: null
+          btnName: null,
+          btnCode: null
         },
         listLoading: false,
         menuList: []
@@ -147,16 +159,14 @@
         this.$refs.select.blur()
       },
       addBtnInfo(row) {
-        // this.btnInfo = {}
+        commonUtils.clearObject(this.btnInfo)
         this.menuList.splice(0)
         getAllMenu().then((response) => {
           this.menuList = response
           if (row) {
             this.btnInfo.id = row.id
             this.btnInfo.btnName = row.btnName
-          } else {
-            this.btnInfo.id = null
-            this.btnInfo.btnName = null
+            this.btnInfo.btnCode = row.btnCode
           }
           this.dialogTableVisible = true
         })
