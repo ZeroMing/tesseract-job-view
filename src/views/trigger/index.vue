@@ -28,7 +28,7 @@
           </el-form-item>
         </div>
         <el-form-item>
-          <el-button type="success" @click="addTriggerInfo"
+          <el-button type="success" @click="addTriggerInfo(null)"
                      v-if="$store.getters.buttons.contains('/trigger/index/add')">新增触发器
           </el-button>
         </el-form-item>
@@ -110,7 +110,7 @@
               type="warning"
               size="small"
               icon="el-icon-edit"
-              @click="modify(scope.row)"
+              @click="addTriggerInfo(scope.row)"
               v-if="$store.getters.buttons.contains('/trigger/index/edit')"
             >
               修改
@@ -189,6 +189,11 @@
         <el-form-item label="描述" prop="description">
           <el-input v-model="triggerInfo.description" type="textarea"/>
         </el-form-item>
+        <el-form-item label="所属组" prop="groupId">
+          <el-select v-model="triggerInfo.groupId" placeholder="所属组">
+            <el-option v-for="group in groupList" :label="group.name" :value="group.id"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="执行器" prop="executor">
           <el-select v-model="triggerInfo.executorId" placeholder="执行器">
             <el-option v-for="executor in executorList" :label="executor.name" :value="executor.id"/>
@@ -208,6 +213,7 @@
     getAllTrigger, addTrigger, deleteTrigger, executeTrigger, startTrigger, stopTrigger
   } from '@/api/trigger'
   import {getAllExecutorNoDetail} from '@/api/executor'
+  import {getAllGroup} from '@/api/group'
   import {parseTime} from '@/utils'
   import constant from './constant'
   import commonUtils from '@/utils/commonUtils'
@@ -232,6 +238,7 @@
           strategy: [{required: true, message: '请选择策略', trigger: 'blur'}],
           executor: [{required: false, message: '请选择执行器', trigger: 'blur'}]
         },
+        groupList: [],
         triggerList: [],
         selectInfo: {
           currentPage: 1,
@@ -253,6 +260,7 @@
         listLoading: false,
         executorList: [],
         executorMap: null,
+        groupMap: null,
         strategyList: constant.strategyList,
         strategyMap: constant.strategyMap,
         statusMap: constant.statusMap,
@@ -278,8 +286,11 @@
       handleDrag() {
         this.$refs.select.blur()
       },
-      addTriggerInfo() {
+      addTriggerInfo(row) {
         this.triggerInfo = {}
+        if (row) {
+          this.triggerInfo = row
+        }
         // 获取执行器列表
         getAllExecutorNoDetail().then((response) => {
           this.executorList = response
@@ -288,7 +299,15 @@
             return
           }
           this.executorMap = commonUtils.listToMap(this.executorList, 'id', 'name')
-          this.dialogTableVisible = true
+          getAllGroup().then(allGroup => {
+            this.groupList = allGroup
+            if (this.groupList.length == 0) {
+              this.$alert('请先添加组')
+              return
+            }
+            this.groupMap = commonUtils.listToMap(this.groupList, 'id', 'name')
+            this.dialogTableVisible = true
+          })
         })
       },
       saveTrigger() {
@@ -300,6 +319,7 @@
           }
           if (valid) {
             this.triggerInfo.executorName = this.executorMap.get(this.triggerInfo.executorId)
+            this.triggerInfo.groupName = this.groupMap.get(this.triggerInfo.groupId)
             addTrigger(this.triggerInfo).then(() => {
               this.$alert('保存成功')
               this.getTriggerList()
@@ -309,19 +329,6 @@
             this.$alert('表单填写错误')
             return false
           }
-        })
-      },
-      modify(row) {
-        this.triggerInfo = row
-        // 获取执行器列表
-        getAllExecutorNoDetail().then((response) => {
-          this.executorList = response
-          if (this.executorList.length == 0) {
-            this.$alert('请先添加执行器')
-            return
-          }
-          this.executorMap = commonUtils.listToMap(this.executorList, 'id', 'name')
-          this.dialogTableVisible = true
         })
       },
       execute(row) {
