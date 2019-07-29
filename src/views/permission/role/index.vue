@@ -46,11 +46,11 @@
         </el-table-column>
 
 
-        <!--        <el-table-column align="center" label="创建时间" width="180">-->
-        <!--          <template slot-scope="scope">-->
-        <!--            <span>{{ !scope.row.createTime || scope.row.createTime==0 ? '': parseTime(scope.row.createTime) }}</span>-->
-        <!--          </template>-->
-        <!--        </el-table-column>-->
+        <el-table-column align="center" label="创建时间" width="180">
+          <template slot-scope="scope">
+            <span>{{ !scope.row.createTime || scope.row.createTime==0 ? '': parseTime(scope.row.createTime) }}</span>
+          </template>
+        </el-table-column>
 
         <el-table-column align="center" label="操作" width="440">
           <template slot-scope="scope">
