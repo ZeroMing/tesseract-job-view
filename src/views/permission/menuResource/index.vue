@@ -3,7 +3,7 @@
     <el-row>
       <el-form :inline="true" :model="selectInfo">
         <el-form-item label="菜单名">
-          <el-input v-model="selectInfo.name" placeholder="菜单名"/>
+          <el-input v-model="selectInfo.metaTitle" placeholder="菜单名"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getMenuList">查询</el-button>
