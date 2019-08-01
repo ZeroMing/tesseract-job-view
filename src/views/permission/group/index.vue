@@ -14,7 +14,7 @@
           </el-form-item>
         </div>
         <el-form-item>
-          <el-button type="success" @click="dialogTableVisible=true"
+          <el-button type="success" @click="saveOrUpdate(null)"
                      v-if="$store.getters.buttons.contains('/permission/group/index/add')">新增组
           </el-button>
         </el-form-item>
@@ -72,7 +72,7 @@
               type="warning"
               size="small"
               icon="el-icon-edit"
-              @click="modify(scope.row)"
+              @click="saveOrUpdate(scope.row)"
               v-if="$store.getters.buttons.contains('/permission/group/index/edit')"
             >
               修改
@@ -191,8 +191,12 @@
           }
         })
       },
-      modify(row) {
-        this.groupInfo = row
+      saveOrUpdate(row) {
+        if (row) {
+          this.groupInfo = row
+        } else {
+          this.groupInfo = {}
+        }
         this.dialogTableVisible = true
       },
       deleteGroup(row) {
