@@ -108,111 +108,113 @@
 </template>
 
 <script>
-  import elDragDialog from '@/directive/el-drag-dialog'
-  import {
-    getAllBtn, addBtn, deleteBtn, btnList
-  } from '@/api/btn'
-  import {parseTime} from '@/utils'
-  import constant from './constant'
-  import commonUtils from '@/utils/commonUtils'
-  import {getAllMenu} from "@/api/menu";
+    import elDragDialog from '@/directive/el-drag-dialog'
+    import {
+        getAllBtn, addBtn, deleteBtn, btnList
+    } from '@/api/btn'
+    import {parseTime} from '@/utils'
+    import constant from './constant'
+    import commonUtils from '@/utils/commonUtils'
+    import {getAllMenu} from "@/api/menu";
 
-  export default {
-    name: 'Btn',
-    directives: {elDragDialog},
-    data() {
-      let data = {
-        btnRules: {
-          btnCode: [{required: true, message: '请输入按钮编码', trigger: 'blur'}],
-          btnName: [{required: true, message: '请输入按钮名', trigger: 'blur'}]
+    export default {
+        name: 'Btn',
+        directives: {elDragDialog},
+        data() {
+            let data = {
+                btnRules: {
+                    btnCode: [{required: true, message: '请输入按钮编码', trigger: 'blur'}],
+                    btnName: [{required: true, message: '请输入按钮名', trigger: 'blur'}]
+                },
+                btnList: [],
+                selectInfo: {
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0,
+                    btnName: null,
+                    btnCode: null
+                },
+                dialogTableVisible: false,
+                btnInfo: {
+                    btnName: null,
+                    btnCode: null
+                },
+                listLoading: false,
+                menuList: [],
+                showCode: true,
+            }
+            return data
         },
-        btnList: [],
-        selectInfo: {
-          currentPage: 1,
-          pageSize: 10,
-          total: 0,
-          btnName: null,
-          btnCode: null
-        },
-        dialogTableVisible: false,
-        btnInfo: {
-          btnName: null,
-          btnCode: null
-        },
-        listLoading: false,
-        menuList: [],
-        showCode: true,
-      }
-      return data
-    },
-    mounted() {
-      this.getBtnList()
-    },
-    methods: {
-      pageChange(currentPage) {
-        this.selectInfo.currentPage = currentPage
-        this.getBtnList()
-      },
-      parseTime: parseTime,
-      getBtnList() {
-        btnList(this.selectInfo).then(response => {
-          this.selectInfo = response.pageInfo
-          this.btnList = response.btnList
-        })
-      },
-      // v-el-drag-dialog onDrag callback function
-      handleDrag() {
-        this.$refs.select.blur()
-      },
-      addBtnInfo(row) {
-        commonUtils.clearObject(this.btnInfo)
-        this.menuList.splice(0)
-        getAllMenu().then((response) => {
-          this.menuList = response
-          if (row) {
-            this.showCode = false
-            this.btnCode = null
-            this.btnInfo.id = row.id
-            this.btnInfo.btnName = row.btnName
-            this.btnInfo.btnCode = row.btnCode
-          }
-          this.dialogTableVisible = true
-        })
-      },
-      saveBtn() {
-        this.$refs.btnForm.validate(valid => {
-          if (valid) {
-            addBtn(this.btnInfo).then(() => {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              this.getBtnList()
-              this.dialogTableVisible = false
-            })
-          } else {
-            this.$message.error('表单填写错误')
-            return false
-          }
-        })
-      },
-      deleteBtn(row) {
-        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteBtn({btnId: row.id}).then(() => {
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            });
+        mounted() {
             this.getBtnList()
-          })
-        })
-      }
+        },
+        methods: {
+            pageChange(currentPage) {
+                this.selectInfo.currentPage = currentPage
+                this.getBtnList()
+            },
+            parseTime: parseTime,
+            getBtnList() {
+                btnList(this.selectInfo).then(response => {
+                    this.selectInfo.currentPage = response.pageInfo.currentPage
+                    this.selectInfo.pageSize = response.pageInfo.pageSize
+                    this.selectInfo.total = response.pageInfo.total
+                    this.btnList = response.btnList
+                })
+            },
+            // v-el-drag-dialog onDrag callback function
+            handleDrag() {
+                this.$refs.select.blur()
+            },
+            addBtnInfo(row) {
+                commonUtils.clearObject(this.btnInfo)
+                this.menuList.splice(0)
+                getAllMenu().then((response) => {
+                    this.menuList = response
+                    if (row) {
+                        this.showCode = false
+                        this.btnCode = null
+                        this.btnInfo.id = row.id
+                        this.btnInfo.btnName = row.btnName
+                        this.btnInfo.btnCode = row.btnCode
+                    }
+                    this.dialogTableVisible = true
+                })
+            },
+            saveBtn() {
+                this.$refs.btnForm.validate(valid => {
+                    if (valid) {
+                        addBtn(this.btnInfo).then(() => {
+                            this.$message({
+                                message: '保存成功',
+                                type: 'success'
+                            });
+                            this.getBtnList()
+                            this.dialogTableVisible = false
+                        })
+                    } else {
+                        this.$message.error('表单填写错误')
+                        return false
+                    }
+                })
+            },
+            deleteBtn(row) {
+                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    deleteBtn({btnId: row.id}).then(() => {
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getBtnList()
+                    })
+                })
+            }
+        }
     }
-  }
 </script>
 
 <style lang="scss" scoped>

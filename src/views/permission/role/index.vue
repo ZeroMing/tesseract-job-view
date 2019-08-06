@@ -125,214 +125,216 @@
 </template>
 
 <script>
-  import elDragDialog from '@/directive/el-drag-dialog'
-  import {
-    addRole, deleteRole, roleList, getRoleMenu
-  } from '@/api/role'
-  import {getAllExecutorNoDetail} from '@/api/executor'
-  import {parseTime} from '@/utils'
-  import constant from './constant'
-  import commonUtils from '@/utils/commonUtils'
-  import {getAllMenu} from "@/api/menu";
-  import {btnListByMenuIdAndRoleId, getAllBtn} from "@/api/btn";
+    import elDragDialog from '@/directive/el-drag-dialog'
+    import {
+        addRole, deleteRole, roleList, getRoleMenu
+    } from '@/api/role'
+    import {getAllExecutorNoDetail} from '@/api/executor'
+    import {parseTime} from '@/utils'
+    import constant from './constant'
+    import commonUtils from '@/utils/commonUtils'
+    import {getAllMenu} from "@/api/menu";
+    import {btnListByMenuIdAndRoleId, getAllBtn} from "@/api/btn";
 
-  export default {
-    name: 'Role',
-    directives: {elDragDialog},
-    data() {
-      let data = {
-        defaultProps: {
-          children: 'children',
-          label: 'label'
-        },
-        menuDataMap: null,
-        menuTreeData: [],
-        expandedKeyList: [],
-        checkedKeyList: [],
-        roleRules: {
-          roleName: [{required: true, message: '请输入角色名', trigger: 'blur'}],
-          roleDesc: [{required: true, message: '请输入角色描述', trigger: 'blur'}],
-        },
-        roleList: [],
-        btnCheckList: [],
-        btnList: [],
-        btnMap: null,
-        selectInfo: {
-          currentPage: 1,
-          pageSize:
-            10,
-          total:
-            0,
-          status:
-            null
-        },
-        styleObject: {
-          display: 'none'
-        },
-        dialogTableVisible: false,
-        roleInfo: {
-          roleName: null,
-          roleDesc: null,
-          id: null
-        },
-        listLoading: false,
-        prevNode: null,
-        menuBtnMap: null
-      }
-      return data
-    },
-    mounted() {
-      this.getRoleList()
-    },
-    methods: {
-      nodeCheck(menu, menuNode) {
-        //如果选择节点拥有父节点则默认选中父节点
-        // alert(JSON.stringify(menu))
-        // let node = menuNode
-        // console.log(node)
-        // console.log(menu)
-        // while (node.isLeaf) {
-        //   this.$refs.tree.setCheckedKeys([node.parent.id]);
-        //   node = menuNode.parent
-        // }
-      },
-      nodeClick(menu, menuNode) {
-        //保存上一次按钮选择状态
-        if (this.prevNode) {
-          this.menuBtnMap.set(this.prevNode.id, this.btnCheckList)
-        }
-        //获取当前点击的节点下checkedList
-        let menuBtnCheckList = this.menuBtnMap.get(menu.id)
-        if (!menuBtnCheckList) {
-          //根据点击的菜单和当前编辑角色获取角色拥有按钮
-          btnListByMenuIdAndRoleId({menuId: menu.id, roleId: this.roleInfo.roleId}).then(response => {
-            this.btnCheckList = []
-            //放入已拥有按钮
-            for (let btn of response) {
-              this.btnCheckList.push(btn.btnName)
+    export default {
+        name: 'Role',
+        directives: {elDragDialog},
+        data() {
+            let data = {
+                defaultProps: {
+                    children: 'children',
+                    label: 'label'
+                },
+                menuDataMap: null,
+                menuTreeData: [],
+                expandedKeyList: [],
+                checkedKeyList: [],
+                roleRules: {
+                    roleName: [{required: true, message: '请输入角色名', trigger: 'blur'}],
+                    roleDesc: [{required: true, message: '请输入角色描述', trigger: 'blur'}],
+                },
+                roleList: [],
+                btnCheckList: [],
+                btnList: [],
+                btnMap: null,
+                selectInfo: {
+                    currentPage: 1,
+                    pageSize:
+                        10,
+                    total:
+                        0,
+                    status:
+                        null
+                },
+                styleObject: {
+                    display: 'none'
+                },
+                dialogTableVisible: false,
+                roleInfo: {
+                    roleName: null,
+                    roleDesc: null,
+                    id: null
+                },
+                listLoading: false,
+                prevNode: null,
+                menuBtnMap: null
             }
-            //将当前点击节点放入map
-            this.menuBtnMap.set(menu.id, this.btnCheckList)
-            //保存当前点击节点
-            this.prevNode = menu
-            this.styleObject.display = 'block'
-          })
-        } else {
-          //如果已经获取过直接赋值
-          this.btnCheckList = menuBtnCheckList
-          //保存当前点击节点
-          this.prevNode = menu
-          this.btnVisible = 'block'
-        }
-      },
-      pageChange(currentPage) {
-        this.selectInfo.currentPage = currentPage
-        this.getRoleList()
-      },
-      parseTime: parseTime,
-      getRoleList() {
-        roleList(this.selectInfo).then(response => {
-          this.selectInfo = response.pageInfo
-          this.roleList = response.roleList
-
-        })
-      },
-      // v-el-drag-dialog onDrag callback function
-      handleDrag() {
-        this.$refs.select.blur()
-      },
-      addRoleInfo(row) {
-        this.styleObject.display = 'none'
-        this.menuBtnMap = new Map()
-        this.prevNode = null
-        this.btnCheckList = []
-        this.checkedKeyList = []
-        let $this = this
-        commonUtils.clearObject(this.roleInfo)
-        Promise.all([getAllMenu(), getAllBtn()]).then((response) => {
-          let {treeDataMap, treeList} = commonUtils.listToTreeData(response[0])
-          $this.menuDataMap = treeDataMap
-          //把菜单树形放入list
-          this.menuTreeData = treeList
-          //把按钮放入tmpBtnList
-          $this.btnList = response[1]
-          $this.btnMap = commonUtils.listToMap(response[1], 'btnName', 'id')
-          //获取角色拥有的菜单
-          if (row) {
-            getRoleMenu({roleId: row.id}).then(response => {
-                $this.checkedKeyList = response
-                $this.expandedKeyList = response
-                if (row) {
-                  this.roleInfo.roleId = row.id
-                  this.roleInfo.roleName = row.roleName
-                  this.roleInfo.roleDesc = row.roleDesc
-                }
-                this.dialogTableVisible = true
-              }
-            )
-          } else {
-            this.dialogTableVisible = true
-          }
-        })
-      },
-      saveRole() {
-        this.$refs.roleForm.validate(valid => {
-          if (valid) {
-            //检查prevNode
-            if (this.prevNode) {
-              this.menuBtnMap.set(this.prevNode.id, this.btnCheckList)
-            }
-            //将菜单绑定到传输数据中
-            let menuInfo = []
-            //获取所有点击节点，只更新点击过的节点按钮权限
-            let checkedNodes = this.$refs.tree.getCheckedNodes()
-            for (let node of checkedNodes) {
-              //获取菜单下选择的按钮
-              let checkedBtnNameList = this.menuBtnMap.get(node.id)
-              let btnList = null
-              if (checkedBtnNameList) {
-                //如果不为空证明点击过，将按钮放入列表后端更新
-                btnList = []
-                for (let btnName of checkedBtnNameList) {
-                  btnList.push({id: this.btnMap.get(btnName), name: btnName})
-                }
-              }
-              menuInfo.push({menuId: node.id, menuName: node.label, btnList: btnList})
-            }
-            this.roleInfo.menuInfo = menuInfo
-            //return
-            addRole(this.roleInfo).then(() => {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              this.getRoleList()
-              this.dialogTableVisible = false
-            })
-          } else {
-            this.$message.error('表单填写错误')
-            return false
-          }
-        })
-      },
-      deleteRole(row) {
-        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteRole({roleId: row.id}).then(() => {
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            });
+            return data
+        },
+        mounted() {
             this.getRoleList()
-          })
-        })
+        },
+        methods: {
+            nodeCheck(menu, menuNode) {
+                //如果选择节点拥有父节点则默认选中父节点
+                // alert(JSON.stringify(menu))
+                // let node = menuNode
+                // console.log(node)
+                // console.log(menu)
+                // while (node.isLeaf) {
+                //   this.$refs.tree.setCheckedKeys([node.parent.id]);
+                //   node = menuNode.parent
+                // }
+            },
+            nodeClick(menu, menuNode) {
+                //保存上一次按钮选择状态
+                if (this.prevNode) {
+                    this.menuBtnMap.set(this.prevNode.id, this.btnCheckList)
+                }
+                //获取当前点击的节点下checkedList
+                let menuBtnCheckList = this.menuBtnMap.get(menu.id)
+                if (!menuBtnCheckList) {
+                    //根据点击的菜单和当前编辑角色获取角色拥有按钮
+                    btnListByMenuIdAndRoleId({menuId: menu.id, roleId: this.roleInfo.roleId}).then(response => {
+                        this.btnCheckList = []
+                        //放入已拥有按钮
+                        for (let btn of response) {
+                            this.btnCheckList.push(btn.btnName)
+                        }
+                        //将当前点击节点放入map
+                        this.menuBtnMap.set(menu.id, this.btnCheckList)
+                        //保存当前点击节点
+                        this.prevNode = menu
+                        this.styleObject.display = 'block'
+                    })
+                } else {
+                    //如果已经获取过直接赋值
+                    this.btnCheckList = menuBtnCheckList
+                    //保存当前点击节点
+                    this.prevNode = menu
+                    this.btnVisible = 'block'
+                }
+            },
+            pageChange(currentPage) {
+                this.selectInfo.currentPage = currentPage
+                this.getRoleList()
+            },
+            parseTime: parseTime,
+            getRoleList() {
+                roleList(this.selectInfo).then(response => {
+                    this.selectInfo.currentPage = response.pageInfo.currentPage
+                    this.selectInfo.pageSize = response.pageInfo.pageSize
+                    this.selectInfo.total = response.pageInfo.total
+                    this.roleList = response.roleList
 
-      }
+                })
+            },
+            // v-el-drag-dialog onDrag callback function
+            handleDrag() {
+                this.$refs.select.blur()
+            },
+            addRoleInfo(row) {
+                this.styleObject.display = 'none'
+                this.menuBtnMap = new Map()
+                this.prevNode = null
+                this.btnCheckList = []
+                this.checkedKeyList = []
+                let $this = this
+                commonUtils.clearObject(this.roleInfo)
+                Promise.all([getAllMenu(), getAllBtn()]).then((response) => {
+                    let {treeDataMap, treeList} = commonUtils.listToTreeData(response[0])
+                    $this.menuDataMap = treeDataMap
+                    //把菜单树形放入list
+                    this.menuTreeData = treeList
+                    //把按钮放入tmpBtnList
+                    $this.btnList = response[1]
+                    $this.btnMap = commonUtils.listToMap(response[1], 'btnName', 'id')
+                    //获取角色拥有的菜单
+                    if (row) {
+                        getRoleMenu({roleId: row.id}).then(response => {
+                                $this.checkedKeyList = response
+                                $this.expandedKeyList = response
+                                if (row) {
+                                    this.roleInfo.roleId = row.id
+                                    this.roleInfo.roleName = row.roleName
+                                    this.roleInfo.roleDesc = row.roleDesc
+                                }
+                                this.dialogTableVisible = true
+                            }
+                        )
+                    } else {
+                        this.dialogTableVisible = true
+                    }
+                })
+            },
+            saveRole() {
+                this.$refs.roleForm.validate(valid => {
+                    if (valid) {
+                        //检查prevNode
+                        if (this.prevNode) {
+                            this.menuBtnMap.set(this.prevNode.id, this.btnCheckList)
+                        }
+                        //将菜单绑定到传输数据中
+                        let menuInfo = []
+                        //获取所有点击节点，只更新点击过的节点按钮权限
+                        let checkedNodes = this.$refs.tree.getCheckedNodes()
+                        for (let node of checkedNodes) {
+                            //获取菜单下选择的按钮
+                            let checkedBtnNameList = this.menuBtnMap.get(node.id)
+                            let btnList = null
+                            if (checkedBtnNameList) {
+                                //如果不为空证明点击过，将按钮放入列表后端更新
+                                btnList = []
+                                for (let btnName of checkedBtnNameList) {
+                                    btnList.push({id: this.btnMap.get(btnName), name: btnName})
+                                }
+                            }
+                            menuInfo.push({menuId: node.id, menuName: node.label, btnList: btnList})
+                        }
+                        this.roleInfo.menuInfo = menuInfo
+                        //return
+                        addRole(this.roleInfo).then(() => {
+                            this.$message({
+                                message: '保存成功',
+                                type: 'success'
+                            });
+                            this.getRoleList()
+                            this.dialogTableVisible = false
+                        })
+                    } else {
+                        this.$message.error('表单填写错误')
+                        return false
+                    }
+                })
+            },
+            deleteRole(row) {
+                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    deleteRole({roleId: row.id}).then(() => {
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getRoleList()
+                    })
+                })
+
+            }
+        }
     }
-  }
 </script>
 
 <style scoped>

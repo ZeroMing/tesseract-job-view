@@ -144,12 +144,12 @@
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item label="菜单编码" prop="code"  v-if="showCode" >
-          <el-input ref="code" v-model="menuInfo.code" placeholder="菜单编码,设置后不可修改" />
+        <el-form-item label="菜单编码" prop="code" v-if="showCode">
+          <el-input ref="code" v-model="menuInfo.code" placeholder="菜单编码,设置后不可修改"/>
         </el-form-item>
 
         <el-form-item label="描述" prop="description">
-          <el-input v-model="menuInfo.description" type="textarea" />
+          <el-input v-model="menuInfo.description" type="textarea"/>
         </el-form-item>
 
         <el-form-item>
@@ -162,173 +162,175 @@
 </template>
 
 <script>
-  import elDragDialog from '@/directive/el-drag-dialog'
-  import {
-    getAllMenu, addMenu, deleteMenu, menuList
-  } from '@/api/menu'
-  import {parseTime} from '@/utils'
-  import constant from './constant'
-  import commonUtils from '@/utils/commonUtils'
+    import elDragDialog from '@/directive/el-drag-dialog'
+    import {
+        getAllMenu, addMenu, deleteMenu, menuList
+    } from '@/api/menu'
+    import {parseTime} from '@/utils'
+    import constant from './constant'
+    import commonUtils from '@/utils/commonUtils'
 
-  export default {
-    name: 'Menu',
-    directives: {elDragDialog},
-    data() {
-      let validateCache = (rule, value, callback) => {
-        if (data.menuInfo.metaCache || data.menuInfo.metaCache == 0) {
-          callback()
-        } else {
-          callback(new Error('请选择是否缓存'));
-        }
-      };
-      let data = {
-        menuRules: {
-          code: [{required: true, message: '请输入菜单编码', trigger: 'blur'}],
-          name: [{required: true, message: '请输入路由名', trigger: 'blur'}],
-          path: [{required: true, message: '请输入路由路径', trigger: 'blur'}],
-          fullPath: [{required: true, message: '请输入资源路径', trigger: 'blur'}],
-          description: [{required: true, message: '输入菜单描述', trigger: 'blur'}],
-          metaTitle: [{required: true, message: '请输入菜单显示名字', trigger: 'blur'}],
-          metaCache: [{validator: validateCache, trigger: 'blur'}]
-        },
-        menuList: [],
-        defaultProps: {
-          children: 'children',
-          label: 'label'
-        },
-        menuDataMap: null,
-        menuTreeData: [],
-        expandedKeyList: [],
-        checkedKeyList: [1, 2, 3],
-        selectInfo:
-          {
-            currentPage: 1,
-            pageSize:
-              10,
-            total:
-              0,
-            status:
-              null
-          }
-        ,
-        dialogTableVisible: false,
-        menuInfo: {
-          id: null,
-          code:null,
-          name: null,
-          path: null,
-          metaTitle: null,
-          metaCache: null,
-          menuDesc: null
-        },
-        listLoading: false,
-        allMenuList:
-          [{"key": null, "value": "无"}],
-        cacheList: constant.cacheList,
-        cacheMap: constant.cacheMap,
-        menuDataMap: null,
-        showCode:false,
-      }
-      return data
-    },
-    mounted() {
-      this.getMenuList()
-    },
-    methods: {
-      pageChange(currentPage) {
-        this.selectInfo.currentPage = currentPage
-        this.getMenuList()
-      },
-      parseTime: parseTime,
-      getMenuList() {
-        menuList(this.selectInfo).then(response => {
-          this.selectInfo = response.pageInfo
-          this.menuList = response.menuList
-        })
-      },
-      // v-el-drag-dialog onDrag callback function
-      handleDrag() {
-        this.$refs.select.blur()
-      },
-      addMenuInfo(row) {
-        let $this = this
-        if(row){
-          $this.showCode = false;
-          row.code = null;
-        }else{
-          $this.showCode = true;
-        }
-
-        // 获取菜单列表
-        getAllMenu().then((response) => {
-          let {treeDataMap, treeList} = commonUtils.listToTreeData(response)
-          $this.menuDataMap = treeDataMap
-          //把菜单树形放入list
-          this.menuTreeData = treeList
-          commonUtils.clearObject(this.menuInfo)
-          this.checkedKeyList = []
-          this.expandedKeyList = []
-          if (row) {
-            this.menuInfo.id = row.id
-            this.menuInfo.code = row.code
-            this.menuInfo.name = row.name
-            this.menuInfo.path = row.path
-            this.menuInfo.fullPath = row.path
-            this.menuInfo.metaTitle = row.metaTitle
-            this.menuInfo.metaCache = row.metaCache
-            this.menuInfo.menuDesc = row.menuDesc
-            if (row.parentId != 0) {
-              this.checkedKeyList.push(row.parentId)
-              this.expandedKeyList.push(row.parentId)
+    export default {
+        name: 'Menu',
+        directives: {elDragDialog},
+        data() {
+            let validateCache = (rule, value, callback) => {
+                if (data.menuInfo.metaCache || data.menuInfo.metaCache == 0) {
+                    callback()
+                } else {
+                    callback(new Error('请选择是否缓存'));
+                }
+            };
+            let data = {
+                menuRules: {
+                    code: [{required: true, message: '请输入菜单编码', trigger: 'blur'}],
+                    name: [{required: true, message: '请输入路由名', trigger: 'blur'}],
+                    path: [{required: true, message: '请输入路由路径', trigger: 'blur'}],
+                    fullPath: [{required: true, message: '请输入资源路径', trigger: 'blur'}],
+                    description: [{required: true, message: '输入菜单描述', trigger: 'blur'}],
+                    metaTitle: [{required: true, message: '请输入菜单显示名字', trigger: 'blur'}],
+                    metaCache: [{validator: validateCache, trigger: 'blur'}]
+                },
+                menuList: [],
+                defaultProps: {
+                    children: 'children',
+                    label: 'label'
+                },
+                menuDataMap: null,
+                menuTreeData: [],
+                expandedKeyList: [],
+                checkedKeyList: [1, 2, 3],
+                selectInfo:
+                    {
+                        currentPage: 1,
+                        pageSize:
+                            10,
+                        total:
+                            0,
+                        status:
+                            null
+                    }
+                ,
+                dialogTableVisible: false,
+                menuInfo: {
+                    id: null,
+                    code: null,
+                    name: null,
+                    path: null,
+                    metaTitle: null,
+                    metaCache: null,
+                    menuDesc: null
+                },
+                listLoading: false,
+                allMenuList:
+                    [{"key": null, "value": "无"}],
+                cacheList: constant.cacheList,
+                cacheMap: constant.cacheMap,
+                menuDataMap: null,
+                showCode: false,
             }
-          }
-          this.dialogTableVisible = true
-        })
-      },
-      saveMenu() {
-        this.$refs.menuForm.validate(valid => {
-          let checkedNodes = this.$refs.tree.getCheckedNodes()
-          if (checkedNodes.length > 1) {
-            this.$alert("父菜单只能选择一个")
-            return
-          }
-          if (valid) {
-            let menuData = this.menuDataMap.get(checkedNodes[0].id)
-            if (menuData) {
-              this.menuInfo.parentId = menuData.id
-              this.menuInfo.parentName = menuData.label
-            }
-            addMenu(this.menuInfo).then(() => {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              this.getMenuList()
-              this.dialogTableVisible = false
-            })
-          } else {
-            this.$message.error('表单填写错误')
-            return false
-          }
-        })
-      },
-      deleteMenu(row) {
-        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteMenu({menuId: row.id}).then(() => {
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            });
+            return data
+        },
+        mounted() {
             this.getMenuList()
-          })
-        })
-      }
+        },
+        methods: {
+            pageChange(currentPage) {
+                this.selectInfo.currentPage = currentPage
+                this.getMenuList()
+            },
+            parseTime: parseTime,
+            getMenuList() {
+                menuList(this.selectInfo).then(response => {
+                    this.selectInfo.currentPage = response.pageInfo.currentPage
+                    this.selectInfo.pageSize = response.pageInfo.pageSize
+                    this.selectInfo.total = response.pageInfo.total
+                    this.menuList = response.menuList
+                })
+            },
+            // v-el-drag-dialog onDrag callback function
+            handleDrag() {
+                this.$refs.select.blur()
+            },
+            addMenuInfo(row) {
+                let $this = this
+                if (row) {
+                    $this.showCode = false;
+                    row.code = null;
+                } else {
+                    $this.showCode = true;
+                }
+
+                // 获取菜单列表
+                getAllMenu().then((response) => {
+                    let {treeDataMap, treeList} = commonUtils.listToTreeData(response)
+                    $this.menuDataMap = treeDataMap
+                    //把菜单树形放入list
+                    this.menuTreeData = treeList
+                    commonUtils.clearObject(this.menuInfo)
+                    this.checkedKeyList = []
+                    this.expandedKeyList = []
+                    if (row) {
+                        this.menuInfo.id = row.id
+                        this.menuInfo.code = row.code
+                        this.menuInfo.name = row.name
+                        this.menuInfo.path = row.path
+                        this.menuInfo.fullPath = row.path
+                        this.menuInfo.metaTitle = row.metaTitle
+                        this.menuInfo.metaCache = row.metaCache
+                        this.menuInfo.menuDesc = row.menuDesc
+                        if (row.parentId != 0) {
+                            this.checkedKeyList.push(row.parentId)
+                            this.expandedKeyList.push(row.parentId)
+                        }
+                    }
+                    this.dialogTableVisible = true
+                })
+            },
+            saveMenu() {
+                this.$refs.menuForm.validate(valid => {
+                    let checkedNodes = this.$refs.tree.getCheckedNodes()
+                    if (checkedNodes.length > 1) {
+                        this.$alert("父菜单只能选择一个")
+                        return
+                    }
+                    if (valid) {
+                        let menuData = this.menuDataMap.get(checkedNodes[0].id)
+                        if (menuData) {
+                            this.menuInfo.parentId = menuData.id
+                            this.menuInfo.parentName = menuData.label
+                        }
+                        addMenu(this.menuInfo).then(() => {
+                            this.$message({
+                                message: '保存成功',
+                                type: 'success'
+                            });
+                            this.getMenuList()
+                            this.dialogTableVisible = false
+                        })
+                    } else {
+                        this.$message.error('表单填写错误')
+                        return false
+                    }
+                })
+            },
+            deleteMenu(row) {
+                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    deleteMenu({menuId: row.id}).then(() => {
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getMenuList()
+                    })
+                })
+            }
+        }
     }
-  }
 </script>
 
 <style lang="scss" scoped>

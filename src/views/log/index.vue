@@ -121,79 +121,81 @@
 </template>
 
 <script>
-  import elDragDialog from '@/directive/el-drag-dialog'
-  import {getAllLog} from '@/api/log'
-  import constant from './constant'
-  import {parseTime} from '@/utils'
+    import elDragDialog from '@/directive/el-drag-dialog'
+    import {getAllLog} from '@/api/log'
+    import constant from './constant'
+    import {parseTime} from '@/utils'
 
-  export default {
-    name: 'Log',
-    directives: {elDragDialog},
-    data() {
-      return {
-        logList: [],
-        selectInfo: {
-          currentPage: 1,
-          pageSize: 10,
-          total: 0,
-          status: null,
-          triggerName: null,
-          socket: null,
-          msg: null,
-          creator: null,
+    export default {
+        name: 'Log',
+        directives: {elDragDialog},
+        data() {
+            return {
+                logList: [],
+                selectInfo: {
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0,
+                    status: null,
+                    triggerName: null,
+                    socket: null,
+                    msg: null,
+                    creator: null,
 
-          startCreateTime: null,
-          endCreateTime: null,
-          startUpdateTime: null,
-          endUpdateTime: null
+                    startCreateTime: null,
+                    endCreateTime: null,
+                    startUpdateTime: null,
+                    endUpdateTime: null
+                },
+                createTimeRange: [],
+                updateTimeRange: [],
+                dialogTableVisible: false,
+                statusMap: constant.statusMap,
+                statusList: constant.statusList,
+                msgDialogVisible: false,
+                logMsg: null
+            }
         },
-        createTimeRange: [],
-        updateTimeRange: [],
-        dialogTableVisible: false,
-        statusMap: constant.statusMap,
-        statusList: constant.statusList,
-        msgDialogVisible: false,
-        logMsg: null
-      }
-    },
-    mounted() {
-      const start = new Date(new Date(new Date().toLocaleDateString()).getTime()).getTime() // 当天0点
-      const end = new Date(new Date(new Date().toLocaleDateString()).getTime() +
-        24 * 60 * 60 * 1000).getTime()
-      // this.createTimeRange.push(start, end)
-      // this.updateTimeRange.push(start, end)
-      this.getLogList()
-    },
-    methods: {
-      showMsg(msg) {
-        this.logMsg = msg
-        this.msgDialogVisible = true
-      },
-      parseTime: parseTime,
-      pageChange(currentPage) {
-        this.selectInfo.currentPage = currentPage
-        this.getLogList()
-      },
-      getLogList() {
-        if (this.createTimeRange) {
-          this.selectInfo.startCreateTime = this.createTimeRange[0]
-          this.selectInfo.endCreateTime = this.createTimeRange[1]
+        mounted() {
+            const start = new Date(new Date(new Date().toLocaleDateString()).getTime()).getTime() // 当天0点
+            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() +
+                24 * 60 * 60 * 1000).getTime()
+            // this.createTimeRange.push(start, end)
+            // this.updateTimeRange.push(start, end)
+            this.getLogList()
+        },
+        methods: {
+            showMsg(msg) {
+                this.logMsg = msg
+                this.msgDialogVisible = true
+            },
+            parseTime: parseTime,
+            pageChange(currentPage) {
+                this.selectInfo.currentPage = currentPage
+                this.getLogList()
+            },
+            getLogList() {
+                if (this.createTimeRange) {
+                    this.selectInfo.startCreateTime = this.createTimeRange[0]
+                    this.selectInfo.endCreateTime = this.createTimeRange[1]
+                }
+                if (this.startUpdateTime) {
+                    this.selectInfo.startUpdateTime = this.updateTimeRange[0]
+                    this.selectInfo.endUpdateTime = this.updateTimeRange[1]
+                }
+                getAllLog(this.selectInfo).then(response => {
+                    this.selectInfo.currentPage = response.pageInfo.currentPage
+                    this.selectInfo.pageSize = response.pageInfo.pageSize
+                    this.selectInfo.total = response.pageInfo.total
+                    this.logList = response.logList
+                })
+            },
+            // v-el-drag-dialog onDrag callback function
+            handleDrag() {
+                this.$refs.select.blur()
+            }
         }
-        if (this.startUpdateTime) {
-          this.selectInfo.startUpdateTime = this.updateTimeRange[0]
-          this.selectInfo.endUpdateTime = this.updateTimeRange[1]
-        }
-        getAllLog(this.selectInfo).then(response => {
-          this.selectInfo = response.pageInfo
-          this.logList = response.logList
-        })
-      },
-      // v-el-drag-dialog onDrag callback function
-      handleDrag() {
-        this.$refs.select.blur()
-      }
     }
-  }
 </script>
 
 <style lang="scss" scoped>

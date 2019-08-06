@@ -125,95 +125,97 @@
 </template>
 
 <script>
-  import elDragDialog from '@/directive/el-drag-dialog'
-  import {getAllGroup, getAllGroupByPage, addGroup, deleteGroup} from '@/api/group'
-  import {parseTime} from '@/utils'
-  import constant from './constant'
+    import elDragDialog from '@/directive/el-drag-dialog'
+    import {getAllGroup, getAllGroupByPage, addGroup, deleteGroup} from '@/api/group'
+    import {parseTime} from '@/utils'
+    import constant from './constant'
 
-  export default {
-    name: 'Group',
-    directives: {elDragDialog},
-    data() {
-      return {
-        listLoading: true,
-        groupRules: {
-          name: [{required: true, message: '输入组名', group: 'blur'}],
-          description: [{required: true, message: '输入组描述', group: 'blur'}],
-          mail: [{required: true, message: '输入报警邮件', group: 'blur'}],
-          threadPoolNum: [{required: true, message: '输入执行线程数', trigger: 'blur'}, {
-            type: 'number',
-            message: '执行线程数必须为数字值'
-          }],
+    export default {
+        name: 'Group',
+        directives: {elDragDialog},
+        data() {
+            return {
+                listLoading: true,
+                groupRules: {
+                    name: [{required: true, message: '输入组名', group: 'blur'}],
+                    description: [{required: true, message: '输入组描述', group: 'blur'}],
+                    mail: [{required: true, message: '输入报警邮件', group: 'blur'}],
+                    threadPoolNum: [{required: true, message: '输入执行线程数', trigger: 'blur'}, {
+                        type: 'number',
+                        message: '执行线程数必须为数字值'
+                    }],
+                },
+                groupList: [],
+                selectInfo: {
+                    currentPage: 1,
+                    pageSize:
+                        10,
+                    total:
+                        0
+                },
+                dialogTableVisible: false,
+                groupInfo: {}
+            }
         },
-        groupList: [],
-        selectInfo: {
-          currentPage: 1,
-          pageSize:
-            10,
-          total:
-            0
-        },
-        dialogTableVisible: false,
-        groupInfo: {}
-      }
-    },
-    mounted() {
-      this.getGroupList()
-    },
-    methods: {
-      pageChange(currentPage) {
-        this.selectInfo.currentPage = currentPage
-        this.getGroupList()
-      },
-      parseTime: parseTime,
-      getGroupList() {
-        getAllGroupByPage(this.selectInfo).then(response => {
-          this.selectInfo = response.pageInfo
-          this.groupList = response.groupList
-          this.listLoading = false
-        })
-      },
-      // v-el-drag-dialog onDrag callback function
-      handleDrag() {
-        this.$refs.select.blur()
-      },
-      saveGroup() {
-        this.$refs.groupForm.validate(valid => {
-          if (valid) {
-            addGroup(this.groupInfo).then(() => {
-              this.$alert('保存成功')
-              this.getGroupList()
-              this.dialogTableVisible = false
-            })
-          } else {
-            this.$alert('表单填写错误')
-            return false
-          }
-        })
-      },
-      saveOrUpdate(row) {
-        if (row) {
-          this.groupInfo = row
-        } else {
-          this.groupInfo = {}
-        }
-        this.dialogTableVisible = true
-      },
-      deleteGroup(row) {
-        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteGroup({groupId: row.id}).then(() => {
-            this.$alert('保存成功')
+        mounted() {
             this.getGroupList()
-            this.dialogTableVisible = false
-          })
-        })
-      }
+        },
+        methods: {
+            pageChange(currentPage) {
+                this.selectInfo.currentPage = currentPage
+                this.getGroupList()
+            },
+            parseTime: parseTime,
+            getGroupList() {
+                getAllGroupByPage(this.selectInfo).then(response => {
+                    this.selectInfo.currentPage = response.pageInfo.currentPage
+                    this.selectInfo.pageSize = response.pageInfo.pageSize
+                    this.selectInfo.total = response.pageInfo.total
+                    this.groupList = response.groupList
+                    this.listLoading = false
+                })
+            },
+            // v-el-drag-dialog onDrag callback function
+            handleDrag() {
+                this.$refs.select.blur()
+            },
+            saveGroup() {
+                this.$refs.groupForm.validate(valid => {
+                    if (valid) {
+                        addGroup(this.groupInfo).then(() => {
+                            this.$alert('保存成功')
+                            this.getGroupList()
+                            this.dialogTableVisible = false
+                        })
+                    } else {
+                        this.$alert('表单填写错误')
+                        return false
+                    }
+                })
+            },
+            saveOrUpdate(row) {
+                if (row) {
+                    this.groupInfo = row
+                } else {
+                    this.groupInfo = {}
+                }
+                this.dialogTableVisible = true
+            },
+            deleteGroup(row) {
+                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    deleteGroup({groupId: row.id}).then(() => {
+                        this.$alert('保存成功')
+                        this.getGroupList()
+                        this.dialogTableVisible = false
+                    })
+                })
+            }
+        }
     }
-  }
 </script>
 
 <style lang="scss" scoped>

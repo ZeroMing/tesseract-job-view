@@ -120,113 +120,115 @@
 </template>
 
 <script>
-  import elDragDialog from '@/directive/el-drag-dialog'
-  import {getAllExecutor, addExecutor, deleteExecutor} from '@/api/executor'
-  import {parseTime} from '@/utils'
-  import {getAllGroup} from '@/api/group'
-  import constant from './constant'
-  import commonUtils from '@/utils/commonUtils'
+    import elDragDialog from '@/directive/el-drag-dialog'
+    import {getAllExecutor, addExecutor, deleteExecutor} from '@/api/executor'
+    import {parseTime} from '@/utils'
+    import {getAllGroup} from '@/api/group'
+    import constant from './constant'
+    import commonUtils from '@/utils/commonUtils'
 
-  export default {
-    name: 'Executor',
-    directives: {elDragDialog},
-    data() {
-      return {
-        listLoading: true,
-        executorRules: {
-          name: [{required: true, message: '输入名字', executor: 'blur'}],
-          description: [{required: true, message: '输入执行器描述', executor: 'blur'}]
-        },
-        executorList: [],
-        selectInfo: {
-          currentPage: 1,
-          pageSize: 10,
-          total: 0
-        },
-        dialogTableVisible: false,
-        executorInfo: {
-          name: null,
-          description: null
-        }
-      }
-    },
-    mounted() {
-      this.getExecutorList()
-    },
-    methods: {
-      addExecutorBtn(row) {
-        commonUtils.clearObject(this.executorInfo)
-        getAllGroup().then(response => {
-          if (response.length == 0) {
-            this.$alert('请先创建组')
-            return
-          }
-          this.groupList = response
-          this.groupMap = commonUtils.listToObjectMap(response, 'id')
-          if (row) {
-            this.executorInfo.id = row.executor.id
-            this.executorInfo.name = row.executor.name
-            this.executorInfo.groupId = row.executor.groupId
-            this.executorInfo.description = row.executor.description
-          } else {
-            this.executorInfo.groupId = response[0].id
-          }
-          this.dialogTableVisible = true
-        })
-      },
-      pageChange(currentPage) {
-        this.selectInfo.currentPage = currentPage
-        this.getExecutorList()
-      },
-      parseTime: parseTime,
-      getExecutorList() {
-        getAllExecutor(this.selectInfo).then(response => {
-          this.selectInfo = response.pageInfo
-          this.executorList = response.executorList
-          this.listLoading = false
-        })
-      },
-      // v-el-drag-dialog onDrag callback function
-      handleDrag() {
-        this.$refs.select.blur()
-      },
-      saveExecutor() {
-        this.$refs.executorForm.validate(valid => {
-          if (valid) {
-            //校验执行器组
-            if (this.executorInfo.groupId == null) {
-              this.$alert('请选择组')
-              return
+    export default {
+        name: 'Executor',
+        directives: {elDragDialog},
+        data() {
+            return {
+                listLoading: true,
+                executorRules: {
+                    name: [{required: true, message: '输入名字', executor: 'blur'}],
+                    description: [{required: true, message: '输入执行器描述', executor: 'blur'}]
+                },
+                executorList: [],
+                selectInfo: {
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0
+                },
+                dialogTableVisible: false,
+                executorInfo: {
+                    name: null,
+                    description: null
+                }
             }
-            let groupInfo = this.groupMap.get(this.executorInfo.groupId)
-            this.executorInfo.groupName = groupInfo.name
-            this.executorInfo.mail = groupInfo.mail
-            addExecutor(this.executorInfo).then(() => {
-              this.$alert('保存成功')
-              this.getExecutorList()
-              this.dialogTableVisible = false
-            })
-          } else {
-            this.$alert('表单填写错误')
-            return false
-          }
-        })
-      },
-      deleteExecutor(row) {
-        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteExecutor({executorId: row.executor.id}).then(() => {
-            this.$alert('保存成功')
+        },
+        mounted() {
             this.getExecutorList()
-            this.dialogTableVisible = false
-          })
-        })
-      }
+        },
+        methods: {
+            addExecutorBtn(row) {
+                commonUtils.clearObject(this.executorInfo)
+                getAllGroup().then(response => {
+                    if (response.length == 0) {
+                        this.$alert('请先创建组')
+                        return
+                    }
+                    this.groupList = response
+                    this.groupMap = commonUtils.listToObjectMap(response, 'id')
+                    if (row) {
+                        this.executorInfo.id = row.executor.id
+                        this.executorInfo.name = row.executor.name
+                        this.executorInfo.groupId = row.executor.groupId
+                        this.executorInfo.description = row.executor.description
+                    } else {
+                        this.executorInfo.groupId = response[0].id
+                    }
+                    this.dialogTableVisible = true
+                })
+            },
+            pageChange(currentPage) {
+                this.selectInfo.currentPage = currentPage
+                this.getExecutorList()
+            },
+            parseTime: parseTime,
+            getExecutorList() {
+                getAllExecutor(this.selectInfo).then(response => {
+                    this.selectInfo.currentPage = response.pageInfo.currentPage
+                    this.selectInfo.pageSize = response.pageInfo.pageSize
+                    this.selectInfo.total = response.pageInfo.total
+                    this.executorList = response.executorList
+                    this.listLoading = false
+                })
+            },
+            // v-el-drag-dialog onDrag callback function
+            handleDrag() {
+                this.$refs.select.blur()
+            },
+            saveExecutor() {
+                this.$refs.executorForm.validate(valid => {
+                    if (valid) {
+                        //校验执行器组
+                        if (this.executorInfo.groupId == null) {
+                            this.$alert('请选择组')
+                            return
+                        }
+                        let groupInfo = this.groupMap.get(this.executorInfo.groupId)
+                        this.executorInfo.groupName = groupInfo.name
+                        this.executorInfo.mail = groupInfo.mail
+                        addExecutor(this.executorInfo).then(() => {
+                            this.$alert('保存成功')
+                            this.getExecutorList()
+                            this.dialogTableVisible = false
+                        })
+                    } else {
+                        this.$alert('表单填写错误')
+                        return false
+                    }
+                })
+            },
+            deleteExecutor(row) {
+                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    deleteExecutor({executorId: row.executor.id}).then(() => {
+                        this.$alert('保存成功')
+                        this.getExecutorList()
+                        this.dialogTableVisible = false
+                    })
+                })
+            }
+        }
     }
-  }
 </script>
 
 <style lang="scss" scoped>
