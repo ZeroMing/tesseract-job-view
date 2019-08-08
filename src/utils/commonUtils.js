@@ -46,8 +46,8 @@ export default {
         parentValue = {id: parentId, label: null, children: []}
         treeDataMap.set(parentId, parentValue)
       }
-      //保存当前节点
-      let currentValue = {id: id, label: metaTitle, isLeaf: true, children: []}
+      //保存当前节点,parentId 为选中父节点准备
+      let currentValue = {id: id, label: metaTitle, isLeaf: true, parentId: parentId, children: []}
       treeDataMap.set(id, currentValue)
       //将当前节点加入到父节点
       parentValue.children.push(currentValue)
@@ -57,7 +57,7 @@ export default {
         treeList.push(treeData[1])
       }
     }
-    debugger
+  debugger
     return {treeDataMap, treeList}
   },
   clearObject(obj) {

@@ -42,7 +42,6 @@ router.beforeEach(async(to, from, next) => {
           const userRouters = store.getters.userRouters
           // dynamically add accessible routes
           // 挂载到router
-          console.info(userRouters)
           router.addRoutes(userRouters)
 
           // hack method to ensure that addRoutes is complete

@@ -95,7 +95,9 @@
           <el-col :span="12">
             <el-tree
               @check="nodeCheck"
+              :expand-on-click-node="false"
               :check-strictly="true"
+              :check-on-click-node="true"
               :data="menuTreeData"
               show-checkbox
               :highlight-current="true"
@@ -187,13 +189,10 @@
         methods: {
             nodeCheck(menu, menuNode) {
                 //如果选择节点拥有父节点则默认选中父节点
-                // alert(JSON.stringify(menu))
-                // let node = menuNode
-                // console.log(node)
-                // console.log(menu)
+                // let node = menu
                 // while (node.isLeaf) {
-                //   this.$refs.tree.setCheckedKeys([node.parent.id]);
-                //   node = menuNode.parent
+                //     this.$refs.tree.setCheckedKeys([node.parentId]);
+                //     node = this.menuDataMap.get(node.parentId)
                 // }
             },
             nodeClick(menu, menuNode) {
