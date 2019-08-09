@@ -73,6 +73,7 @@ const mutations = {
 
 const actions = {
   addView({dispatch}, view) {
+    console.log(view)
     dispatch('addVisitedView', view)
     dispatch('addCachedView', view)
   },
