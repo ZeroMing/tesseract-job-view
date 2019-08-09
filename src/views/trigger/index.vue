@@ -190,7 +190,7 @@
           <el-input v-model="triggerInfo.description" type="textarea"/>
         </el-form-item>
         <el-form-item label="所属组" prop="groupId">
-          <el-select v-model="triggerInfo.groupId" placeholder="所属组">
+          <el-select v-model="triggerInfo.groupId" placeholder="所属组" @change="groupSelectChange">
             <el-option v-for="group in groupList" :label="group.name" :value="group.id"/>
           </el-select>
         </el-form-item>
@@ -271,6 +271,22 @@
             this.getTriggerList()
         },
         methods: {
+            groupSelectChange(groupId) {
+                /**
+                 * 按组获取执行器
+                 */
+                getAllExecutorNoDetail({groupId: groupId}).then((response) => {
+                    this.executorList = response
+                    if (this.executorList.length == 0) {
+                        this.$alert('该组下没有执行器，请先添加执行器')
+                        return
+                    }
+                    this.executorMap = commonUtils.listToMap(this.executorList, 'id', 'name')
+                    if (!this.triggerInfo.executorId) {
+                        this.triggerInfo.executorId = this.executorList[0].id
+                    }
+                })
+            },
             pageChange(currentPage) {
                 this.selectInfo.currentPage = currentPage
                 this.getTriggerList()
@@ -293,23 +309,20 @@
                 if (row) {
                     this.triggerInfo = row
                 }
-                // 获取执行器列表
-                getAllExecutorNoDetail().then((response) => {
-                    this.executorList = response
-                    if (this.executorList.length == 0) {
-                        this.$alert('请先添加执行器')
+                // 获取组列表
+                getAllGroup().then(allGroup => {
+                    this.groupList = allGroup
+                    if (this.groupList.length == 0) {
+                        this.$alert('请先添加组')
                         return
                     }
-                    this.executorMap = commonUtils.listToMap(this.executorList, 'id', 'name')
-                    getAllGroup().then(allGroup => {
-                        this.groupList = allGroup
-                        if (this.groupList.length == 0) {
-                            this.$alert('请先添加组')
-                            return
-                        }
-                        this.groupMap = commonUtils.listToMap(this.groupList, 'id', 'name')
-                        this.dialogTableVisible = true
-                    })
+                    this.groupMap = commonUtils.listToMap(this.groupList, 'id', 'name')
+                    //初始化默认值
+                    if (!row) {
+                        this.triggerInfo.groupId = this.groupList[0].id
+                    }
+                    this.groupSelectChange(this.triggerInfo.groupId)
+                    this.dialogTableVisible = true
                 })
             },
             saveTrigger() {
