@@ -47,3 +47,21 @@ export function stopTrigger(data) {
     params: data
   })
 }
+
+
+export function stopFiredTrigger(data) {
+  return request({
+    url: '/tesseract-firedTrigger/stop',
+    method: 'get',
+    params: data
+  })
+}
+
+
+export function getAllFiredTrigger(data) {
+  return request({
+    url: '/tesseract-firedTrigger/firedTriggerList',
+    method: 'get',
+    params: data
+  })
+}

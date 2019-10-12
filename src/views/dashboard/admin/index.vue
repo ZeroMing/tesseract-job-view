@@ -100,8 +100,8 @@
     }
     const pieChartData = {
         log: {
-            showNameList: ['成功', '失败', '执行中', '未收到执行器确认'],
-            name: '日志分析饼图',
+            showNameList: ['成功', '失败', '执行中'],
+            name: '历史日志分析饼图',
             dataList: []
         }
     }
@@ -109,7 +109,7 @@
     const barChartData = {
         log: {
             showNameList: xAxisData,
-            name: '日志分析柱形图',
+            name: '近七天日志分析柱形图',
             dataList: []
         }
     }
@@ -165,19 +165,19 @@
                 // 获取日志饼图
                 statisticsLogPie().then(response => {
                     for (const data of response) {
-                        switch (data.name) {
+                        switch (data.status) {
                             // {value: 320, name: '成功', itemStyle: {color: '#DC143C'}}
-                            case '成功':
+                            case 1:
                                 data.itemStyle = {color: '#05dc90'}
+                                data.name="成功"
                                 break
-                            case '失败':
+                            case 0:
                                 data.itemStyle = {color: '#DC143C'}
+                                data.name="失败"
                                 break
-                            case '执行中':
+                            case 2:
                                 data.itemStyle = {color: '#dc409e'}
-                                break
-                            case '未收到执行器确认':
-                                data.itemStyle = {color: '#dcd324'}
+                                data.name="执行中"
                                 break
                         }
                     }

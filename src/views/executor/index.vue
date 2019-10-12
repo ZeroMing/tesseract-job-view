@@ -46,7 +46,7 @@
         </el-table-column>
         <el-table-column align="center" label="在线机器">
           <template slot-scope="scope">
-            <span v-for="executorDetail in scope.row.executorDetailList" style="color: #67C23A;font-weight: bold">{{ executorDetail.socket }}</span><br>
+            <span v-for="executorDetail in scope.row.executorDetailList" style="color: #67C23A;font-weight: bold">{{ executorDetail.socket }}<br></span>
           </template>
         </el-table-column>
 
