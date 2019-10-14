@@ -54,7 +54,11 @@
             <span>{{ scope.row.shardingIndex }}</span>
           </template>
         </el-table-column>
-
+        <el-table-column align="center" label="创建者">
+          <template slot-scope="scope">
+            <span>{{ scope.row.creator }}</span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="创建时间" width="180">
           <template slot-scope="scope">
             <span>{{ scope.row.createTime==0 ? '': parseTime(scope.row.createTime) }}</span>
