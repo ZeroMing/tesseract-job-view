@@ -146,152 +146,154 @@
 </template>
 
 <script>
-  import elDragDialog from '@/directive/el-drag-dialog'
-  import {getAllUser, addUser, passwordRevert, validUser, invalidUser, deleteUser} from '@/api/user'
-  import {getAllGroup} from '@/api/group'
-  import constant from './constant'
-  import {parseTime} from '@/utils'
-  import commonUtils from '@/utils/commonUtils'
-  import {getAllRole, getRoleByUserId} from '@/api/role'
+    import elDragDialog from '@/directive/el-drag-dialog'
+    import {getAllUser, addUser, passwordRevert, validUser, invalidUser, deleteUser} from '@/api/user'
+    import {getAllGroup} from '@/api/group'
+    import constant from './constant'
+    import {parseTime} from '@/utils'
+    import commonUtils from '@/utils/commonUtils'
+    import {getAllRole, getRoleByUserId} from '@/api/role'
 
-  export default {
-    name: 'User',
-    directives: {elDragDialog},
-    data() {
-      return {
-        userRules: {
-          name: [{required: true, message: '输入用户名', user: 'blur'}],
-          group: [{required: false, message: '请选择用户组', trigger: 'blur'}],
-          role: [{required: false, message: '请选择角色', trigger: 'blur'}]
-        },
-        userList: [],
-        selectInfo: {
-          currentPage: 1,
-          pageSize: 10,
-          total: 0,
-          status: null
-        },
-        dialogTableVisible: false,
-        userInfo: {
-          name: null,
-          roleId: null,
-          groupId: null
-        },
-        statusMap: constant.statusMap,
-        statusList: constant.statusList,
-        listLoading: false,
-        groupList: null,
-        groupMap: null,
-        roleList: null,
-        roleNameIdMap: null,
-        checkRoleList: []
+    export default {
+        name: 'User',
+        directives: {elDragDialog},
+        data() {
+            return {
+                userRules: {
+                    name: [{required: true, message: '输入用户名', user: 'blur'}],
+                    group: [{required: false, message: '请选择用户组', trigger: 'blur'}],
+                    role: [{required: false, message: '请选择角色', trigger: 'blur'}]
+                },
+                userList: [],
+                selectInfo: {
+                    currentPage: 1,
+                    pageSize: 10,
+                    total: 0,
+                    status: null
+                },
+                dialogTableVisible: false,
+                userInfo: {
+                    name: null,
+                    roleId: null,
+                    groupId: null
+                },
+                statusMap: constant.statusMap,
+                statusList: constant.statusList,
+                listLoading: false,
+                groupList: null,
+                groupMap: null,
+                roleList: null,
+                roleNameIdMap: null,
+                checkRoleList: []
 
-      }
-    },
-    mounted() {
-      this.getUserList()
-    },
-    methods: {
-      parseTime: parseTime,
-      addUserBtn(row) {
-        let promiseList
-        if (row) {
-          promiseList = [getAllGroup(), getAllRole(), getRoleByUserId({userId: row.id})]
-        } else {
-          promiseList = [getAllGroup(), getAllRole()]
-        }
-        Promise.all(promiseList).then(reponseList => {
-          this.groupList = reponseList[0]
-          this.groupMap = commonUtils.listToMap(reponseList[0], 'id', 'name')
-          this.roleList = reponseList[1]
-          this.roleNameIdMap = commonUtils.listToMap(reponseList[1], 'roleName', 'id')
-          if (row) {
-            this.userInfo.id = row.id
-            this.userInfo.name = row.name
-            this.userInfo.groupId = row.groupId
-            for (let role of  reponseList[2]) {
-              this.checkRoleList.push(role.roleName)
             }
-          } else {
-            this.userInfo.id = null
-            this.userInfo.name = null
-            this.userInfo.groupId = reponseList[0][0].id
-            this.userInfo.roleId = reponseList[1][0].id
-          }
-          this.dialogTableVisible = true
-        })
-      },
-      pageChange(currentPage) {
-        this.selectInfo.currentPage = currentPage
-        this.getUserList()
-      },
-      getUserList() {
-        getAllUser(this.selectInfo).then(response => {
-          this.selectInfo = response.pageInfo
-          this.userList = response.userList
-        })
-      },
-      // v-el-drag-dialog onDrag callback function
-      handleDrag() {
-        this.$refs.select.blur()
-      },
-      saveUser() {
-        this.$refs.userForm.validate(valid => {
-          //校验用户组
-          if (this.userInfo.groupId == null) {
-            this.$alert('请选择组')
-            return
-          }
-          //所选角色
-          let roleIdList = []
-          for (let roleName of this.checkRoleList) {
-            roleIdList.push(this.roleNameIdMap.get(roleName))
-          }
-          this.userInfo.roleIdList = roleIdList
-          this.userInfo.groupName = this.groupMap.get(this.userInfo.groupId)
-          if (valid) {
-            addUser(this.userInfo).then(() => {
-              this.$alert('保存成功')
-              this.getUserList()
-              this.dialogTableVisible = false
-            })
-          } else {
-            this.$alert('表单填写错误')
-            return false
-          }
-        })
-      },
-      passwordRevert(userId) {
-        passwordRevert({userId: userId}).then(() => {
-          this.$alert('重置成功')
-        })
-      },
-      valid(userId) {
-        validUser({userId: userId}).then(() => {
-          this.$alert('启用成功')
-          this.getUserList()
-        })
-      },
-      invalid(userId) {
-        invalidUser({userId: userId}).then(() => {
-          this.$alert('停用成功')
-          this.getUserList()
-        })
-      },
-      deleteUser(userId) {
-        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteUser({userId: userId}).then(() => {
-            this.$alert('删除成功')
+        },
+        mounted() {
             this.getUserList()
-          })
-        })
-      }
+        },
+        methods: {
+            parseTime: parseTime,
+            addUserBtn(row) {
+                let promiseList
+                if (row) {
+                    promiseList = [getAllGroup(), getAllRole(), getRoleByUserId({userId: row.id})]
+                } else {
+                    promiseList = [getAllGroup(), getAllRole()]
+                }
+                Promise.all(promiseList).then(reponseList => {
+                    this.groupList = reponseList[0]
+                    this.groupMap = commonUtils.listToMap(reponseList[0], 'id', 'name')
+                    this.roleList = reponseList[1]
+                    this.roleNameIdMap = commonUtils.listToMap(reponseList[1], 'roleName', 'id')
+                    commonUtils.clearObject(this.userInfo)
+                    this.checkRoleList.splice(0, this.checkRoleList.length)
+                    if (row) {
+                        this.userInfo.id = row.id
+                        this.userInfo.name = row.name
+                        this.userInfo.groupId = row.groupId
+                        for (let role of reponseList[2]) {
+                            this.checkRoleList.push(role.roleName)
+                        }
+                    } else {
+                        this.userInfo.id = null
+                        this.userInfo.name = null
+                        this.userInfo.groupId = reponseList[0][0].id
+                        this.userInfo.roleId = reponseList[1][0].id
+                    }
+                    this.dialogTableVisible = true
+                })
+            },
+            pageChange(currentPage) {
+                this.selectInfo.currentPage = currentPage
+                this.getUserList()
+            },
+            getUserList() {
+                getAllUser(this.selectInfo).then(response => {
+                    this.selectInfo = response.pageInfo
+                    this.userList = response.userList
+                })
+            },
+            // v-el-drag-dialog onDrag callback function
+            handleDrag() {
+                this.$refs.select.blur()
+            },
+            saveUser() {
+                this.$refs.userForm.validate(valid => {
+                    //校验用户组
+                    if (this.userInfo.groupId == null) {
+                        this.$alert('请选择组')
+                        return
+                    }
+                    //所选角色
+                    let roleIdList = []
+                    for (let roleName of this.checkRoleList) {
+                        roleIdList.push(this.roleNameIdMap.get(roleName))
+                    }
+                    this.userInfo.roleIdList = roleIdList
+                    this.userInfo.groupName = this.groupMap.get(this.userInfo.groupId)
+                    if (valid) {
+                        addUser(this.userInfo).then(() => {
+                            this.$alert('保存成功')
+                            this.getUserList()
+                            this.dialogTableVisible = false
+                        })
+                    } else {
+                        this.$alert('表单填写错误')
+                        return false
+                    }
+                })
+            },
+            passwordRevert(userId) {
+                passwordRevert({userId: userId}).then(() => {
+                    this.$alert('重置成功')
+                })
+            },
+            valid(userId) {
+                validUser({userId: userId}).then(() => {
+                    this.$alert('启用成功')
+                    this.getUserList()
+                })
+            },
+            invalid(userId) {
+                invalidUser({userId: userId}).then(() => {
+                    this.$alert('停用成功')
+                    this.getUserList()
+                })
+            },
+            deleteUser(userId) {
+                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    deleteUser({userId: userId}).then(() => {
+                        this.$alert('删除成功')
+                        this.getUserList()
+                    })
+                })
+            }
+        }
     }
-  }
 </script>
 
 <style lang="scss" scoped>

@@ -57,13 +57,13 @@ export default {
         treeList.push(treeData[1])
       }
     }
-  debugger
+    debugger
     return {treeDataMap, treeList}
   },
   clearObject(obj) {
     for (let key in obj) {
       if (obj[key] instanceof Array) {
-        obj[key].splice(0)
+        obj[key].splice(0, obj[key].length)
       } else {
         obj[key] = null
       }
