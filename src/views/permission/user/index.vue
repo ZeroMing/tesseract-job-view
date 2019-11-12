@@ -121,7 +121,7 @@
         @current-change="pageChange"
       />
     </el-row>
-    <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="触发器信息" @dragDialog="handleDrag">
+    <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="用户信息" @dragDialog="handleDrag">
       <el-form ref="userForm" :inline="false" :model="userInfo" :rules="userRules" label-width="120px">
         <el-form-item label="用户名" prop="name">
           <el-input ref="name" v-model="userInfo.name" placeholder="用户名"/>

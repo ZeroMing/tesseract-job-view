@@ -88,7 +88,7 @@
     </el-row>
     <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="角色信息" @dragDialog="handleDrag">
       <el-form ref="roleForm" :inline="false" :model="roleInfo" :rules="roleRules" label-width="120px">
-        <el-form-item label="角色名" props="roleName">
+        <el-form-item label="角色名" prop="roleName">
           <el-input ref="name" v-model="roleInfo.roleName" placeholder="角色名"/>
         </el-form-item>
         <el-form-item label="菜单">
@@ -115,7 +115,7 @@
             </el-checkbox-group>
           </el-col>
         </el-form-item>
-        <el-form-item label="角色描述" props="roleDesc">
+        <el-form-item label="角色描述" prop="roleDesc">
           <el-input ref="roleDesc" v-model="roleInfo.roleDesc" placeholder="角色描述"/>
         </el-form-item>
         <el-form-item>
@@ -142,7 +142,7 @@
         name: 'Role',
         directives: {elDragDialog},
         data() {
-            let data = {
+            return {
                 defaultProps: {
                     children: 'children',
                     label: 'label'
@@ -181,7 +181,6 @@
                 prevNode: null,
                 menuBtnMap: null
             }
-            return data
         },
         mounted() {
             this.getRoleList()
