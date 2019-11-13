@@ -195,7 +195,7 @@
             },
             saveOrUpdate(row) {
                 if (row) {
-                    this.groupInfo = row
+                    this.groupInfo = Object.assign({}, row);
                 } else {
                     this.groupInfo = {}
                 }
