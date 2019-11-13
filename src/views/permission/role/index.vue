@@ -97,7 +97,7 @@
               @check="nodeCheck"
               :expand-on-click-node="false"
               :check-strictly="true"
-              :check-on-click-node="true"
+              :check-on-click-node="false"
               :data="menuTreeData"
               show-checkbox
               :highlight-current="true"
