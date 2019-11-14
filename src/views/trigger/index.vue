@@ -309,9 +309,9 @@
                 this.$refs.select.blur()
             },
             addTriggerInfo(row) {
-                this.triggerInfo = {}
+                commonUtils.clearObject(this.triggerInfo)
                 if (row) {
-                    this.triggerInfo = row
+                    Object.assign(this.triggerInfo, row)
                 }
                 // 获取组列表
                 getAllGroup().then(allGroup => {
@@ -322,7 +322,7 @@
                         this.triggerInfo.groupId = this.groupList[0].id
                     }
                     if (this.triggerInfo.groupId) {
-                        this.groupSelectChange(this.triggerInfo.groupId)
+                        this.groupSelectChange(this.triggerInfo.groupId, row)
                     }
                     this.dialogTableVisible = true
                 })
