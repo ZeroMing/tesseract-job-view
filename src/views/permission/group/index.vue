@@ -102,7 +102,7 @@
         @current-change="pageChange"
       />
     </el-row>
-    <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="执行器信息" @dragDialog="handleDrag">
+    <el-dialog v-el-drag-dialog :visible.sync="dialogTableVisible" title="调度组信息" @dragDialog="handleDrag">
       <el-form ref="groupForm" :inline="false" :model="groupInfo" :rules="groupRules" label-width="120px">
         <el-form-item label="组名" prop="name">
           <el-input ref="name" v-model="groupInfo.name" placeholder="组名"/>

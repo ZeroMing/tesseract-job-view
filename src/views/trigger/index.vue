@@ -189,14 +189,17 @@
         <el-form-item label="描述" prop="description">
           <el-input v-model="triggerInfo.description" type="textarea"/>
         </el-form-item>
+        <el-form-item label="执行参数">
+          <el-input v-model="triggerInfo.executeParam" type="textarea"/>
+        </el-form-item>
         <el-form-item label="所属组" prop="groupId">
           <el-select v-model="triggerInfo.groupId" placeholder="所属组" @change="groupSelectChange">
             <el-option v-for="group in groupList" :label="group.name" :value="group.id"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="执行器" prop="executor">
-          <el-select v-model="triggerInfo.executorId" placeholder="执行器">
-            <el-option v-for="executor in executorList" :label="executor.name" :value="executor.id"/>
+        <el-form-item label="执行器">
+          <el-select v-model="triggerInfo.executorId" placeholder="请选择执行器">
+            <el-option v-for="e in executorList" :label="e.name" :value="e.id"/>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -252,10 +255,12 @@
                     cron: null,
                     strategy: 0,
                     shardingNum: 0,
+                    executeParam: null,
                     retryCount: 0,
                     description: null,
+                    executorName: null,
                     executorId: null,
-                    executorName: null
+                    groupId: null
                 },
                 listLoading: false,
                 executorList: [],
@@ -275,16 +280,15 @@
                 /**
                  * 按组获取执行器
                  */
-                getAllExecutorNoDetail({groupId: groupId}).then((response) => {
-                    this.executorList = response
-                    if (this.executorList.length == 0) {
-                        this.$alert('该组下没有执行器，请先添加执行器')
-                        return
-                    }
+                getAllExecutorNoDetail({groupId: groupId}).then((executorList) => {
+                    this.executorList = executorList
                     this.executorMap = commonUtils.listToMap(this.executorList, 'id', 'name')
-                    if (!this.triggerInfo.executorId) {
-                        this.triggerInfo.executorId = this.executorList[0].id
+                    if (executorList.length != 0) {
+                        this.triggerInfo.executorId = executorList[0].id
+                    } else {
+                        this.triggerInfo.executorId = null
                     }
+
                 })
             },
             pageChange(currentPage) {
@@ -312,16 +316,14 @@
                 // 获取组列表
                 getAllGroup().then(allGroup => {
                     this.groupList = allGroup
-                    if (this.groupList.length == 0) {
-                        this.$alert('请先添加组')
-                        return
-                    }
                     this.groupMap = commonUtils.listToMap(this.groupList, 'id', 'name')
                     //初始化默认值
-                    if (!row) {
+                    if (!row && this.groupList && this.groupList.length != 0) {
                         this.triggerInfo.groupId = this.groupList[0].id
                     }
-                    this.groupSelectChange(this.triggerInfo.groupId)
+                    if (this.triggerInfo.groupId) {
+                        this.groupSelectChange(this.triggerInfo.groupId)
+                    }
                     this.dialogTableVisible = true
                 })
             },
@@ -330,6 +332,11 @@
                     //校验执行器
                     if (this.triggerInfo.executorId == null) {
                         this.$alert('请选择执行器')
+                        return
+                    }
+                    //校验组
+                    if (this.triggerInfo.groupId == null) {
+                        this.$alert('请选择组')
                         return
                     }
                     if (valid) {
@@ -347,7 +354,7 @@
                 })
             },
             execute(row) {
-                executeTrigger({groupName: row.groupName, triggerId: row.id}).then(() => {
+                executeTrigger({groupId: row.groupId, triggerId: row.id}).then(() => {
                     this.$alert('执行成功')
                 })
             },

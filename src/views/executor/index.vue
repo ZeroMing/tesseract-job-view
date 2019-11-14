@@ -146,8 +146,10 @@
                 dialogTableVisible: false,
                 executorInfo: {
                     name: null,
-                    description: null
-                }
+                    description: null,
+                    groupId: null
+                },
+                groupList: []
             }
         },
         mounted() {
@@ -161,7 +163,8 @@
                         this.$alert('请先创建组')
                         return
                     }
-                    this.groupList = response
+                    this.groupList.splice(0, this.groupList.length)
+                    this.groupList = this.groupList.concat(response)
                     this.groupMap = commonUtils.listToObjectMap(response, 'id')
                     if (row) {
                         this.executorInfo.id = row.executor.id
