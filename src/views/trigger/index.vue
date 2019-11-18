@@ -35,7 +35,8 @@
       </el-form>
     </el-row>
     <el-row>
-      <el-table v-loading="listLoading" :data="triggerList" border fit highlight-current-row style="width: 100%">
+      <el-table v-if="$store.getters.buttons.contains('/trigger/index/select')" v-loading="listLoading"
+                :data="triggerList" border fit highlight-current-row style="width: 100%">
         <el-table-column align="center" label="ID" width="80">
           <template slot-scope="scope">
             <span>{{ scope.row.id }}</span>

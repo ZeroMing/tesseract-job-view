@@ -44,7 +44,8 @@
       </el-form>
     </el-row>
     <el-row>
-      <el-table v-loading="listLoading" :data="logList" border fit highlight-current-row style="width: 100%">
+      <el-table v-if="$store.getters.buttons.contains('/log/index/select')" v-loading="listLoading" :data="logList"
+                border fit highlight-current-row style="width: 100%">
         <el-table-column align="center" label="ID" width="80">
           <template slot-scope="scope">
             <span>{{ scope.row.id }}</span>
@@ -78,9 +79,14 @@
             <span>{{ scope.row.creator }}</span>
           </template>
         </el-table-column>
+        <el-table-column align="center" label="重试次数">
+          <template slot-scope="scope">
+            <span>{{ scope.row.retryCount }}</span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="创建时间" width="180">
           <template slot-scope="scope">
-            <span>{{ scope.row.createTime==0 ? '': parseTime(scope.row.endTime) }}</span>
+            <span>{{ scope.row.createTime==0 ? '': parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="结束时间" width="180">
