@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" v-if="$store.getters.buttons.contains('/executor/index/select')">
     <el-row>
       <el-form :inline="true" :model="selectInfo">
-        <div v-if="$store.getters.buttons.contains('/executor/index/select')" style="display: inline">
+        <div style="display: inline">
           <el-form-item label="执行器名称">
             <el-input v-model="selectInfo.name" placeholder="执行器名称"/>
           </el-form-item>
@@ -23,7 +23,7 @@
       </el-form>
     </el-row>
     <el-row>
-      <el-table v-if="$store.getters.buttons.contains('/executor/index/select')" v-loading="listLoading"
+      <el-table v-loading="listLoading"
                 :data="executorList" border fit highlight-current-row style="width: 100%">
         <el-table-column align="center" label="ID" width="80">
           <template slot-scope="scope">
@@ -117,6 +117,9 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+  </div>
+  <div class="app-container" v-else>
+    <p style="color: red;">您当前没有权限</p>
   </div>
 </template>
 

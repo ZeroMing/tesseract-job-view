@@ -1,7 +1,7 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" v-if="$store.getters.buttons.contains('/log/index/select')">
     <el-row>
-      <el-form :inline="true" :model="selectInfo" v-if="$store.getters.buttons.contains('/log/index/select')">
+      <el-form :inline="true" :model="selectInfo">
         <el-form-item label="触发器名字">
           <el-input v-model="selectInfo.triggerName" placeholder="触发器名字"/>
         </el-form-item>
@@ -44,7 +44,7 @@
       </el-form>
     </el-row>
     <el-row>
-      <el-table v-if="$store.getters.buttons.contains('/log/index/select')" v-loading="listLoading" :data="logList"
+      <el-table v-loading="listLoading" :data="logList"
                 border fit highlight-current-row style="width: 100%">
         <el-table-column align="center" label="ID" width="80">
           <template slot-scope="scope">
@@ -123,6 +123,9 @@
     <el-dialog v-el-drag-dialog :visible.sync="msgDialogVisible" title="执行信息" @dragDialog="handleDrag">
       {{ logMsg }}
     </el-dialog>
+  </div>
+  <div class="app-container" v-else>
+    <p style="color: red;">您当前没有权限</p>
   </div>
 </template>
 
